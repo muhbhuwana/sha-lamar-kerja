@@ -2,7 +2,7 @@
 
 Website *single-page application* (SPA) sederhana yang dirancang khusus untuk membantu **Shakira Aulia Najma** mengotomatiskan pembuatan draf email dan surat lamaran kerja. Dibuat agar proses *apply* kerja menjadi lebih cepat, rapi, tanpa harus pusing memikirkan *formatting* berulang kali.
 
-🌐 **Live Demo:** [Tulis Link GitHub Pages Anda Di Sini, misal: https://username.github.io/asisten-shakira]
+🌐 **Live Demo:** https://muhbhuwana.github.io/sha-lamar-kerja/
 
 ---
 
