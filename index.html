@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asisten Lamaran Kerja Shakira</title>
+    <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #334155;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem; margin: 0; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; background: var(--surface); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; color: #0f172a; }
+        
+        /* Styling untuk kotak motivasi */
+        .motivasi-box {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #bfdbfe;
+        }
+        .motivasi-text {
+            color: #1e3a8a;
+            font-size: 1.05rem;
+            font-style: italic;
+            font-weight: 500;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .form-group { margin-bottom: 1.5rem; flex: 1; min-width: 250px; }
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: #1e293b; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; }
+        input[type="text"]:focus, input[type="email"]:focus { outline: none; border-color: var(--primary); }
+        
+        /* Mengubah styling textarea menjadi rich-text box */
+        .rich-text-box { width: 100%; min-height: 250px; padding: 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; background: #f1f5f9; overflow-y: auto; outline: none; transition: border-color 0.2s; }
+        .rich-text-box:focus { border-color: var(--primary); background: #ffffff; }
+        .rich-text-box p { margin-top: 0; margin-bottom: 0.75rem; }
+        .rich-text-box ul { margin-top: 0; margin-bottom: 0.75rem; padding-left: 1.5rem; }
+        
+        .btn-group { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
+        button { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; font-size: 0.9rem; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #10b981; color: white; }
+        .btn-secondary:hover { background-color: #059669; }
+        .btn-gmail { background-color: #ea4335; color: white; }
+        .btn-gmail:hover { background-color: #c5221f; }
+        .section-title { font-size: 1.2rem; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); color: #0f172a; }
+        .hidden { display: none; }
+        .alert { background-color: #fef3c7; border-left: 4px solid var(--warning); padding: 1rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.6; color: #451a03; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>✨ Asisten Lamaran Kerja Shakira ✨</h1>
+    
+    <div class="motivasi-box">
+        <p id="teksMotivasi" class="motivasi-text"></p>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="nama">Nama Kamu</label>
+            <input type="text" id="nama" value="Shakira Aulia Najma" placeholder="Isi namamu di sini..." oninput="generateAll()">
+        </div>
+        <div class="form-group">
+            <label for="perusahaan">Mau Lamar ke Perusahaan Apa?</label>
+            <input type="text" id="perusahaan" placeholder="Contoh: PT Bangun Negeri" oninput="generateAll()">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="posisi">Posisi Impianmu</label>
+            <input type="text" id="posisi" placeholder="Contoh: Staff Administrasi" oninput="generateAll()">
+        </div>
+        <div class="form-group">
+            <label for="emailTujuan">Email HRD-nya</label>
+            <input type="email" id="emailTujuan" placeholder="Contoh: hrd@perusahaannya.com" oninput="generateAll()">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="subject">Subjek Email</label>
+        <input type="text" id="subject" placeholder="Contoh: Lamaran Pekerjaan - Staff Administrasi - Shakira" oninput="generateAll()">
+    </div>
+
+    <h2 class="section-title">1. Teks Buat di Email</h2>
+    <div class="alert">
+        <strong>💡 Tips biar rapi:</strong> Mending kamu klik <strong>"Copy Teks Email"</strong> terus <em>paste</em> sendiri di kotak tulis Gmail ya. Kalau pakai tombol "Buka langsung di Gmail", format tebalnya (bold) suka hilang karena bawaan dari sananya.<br><br>
+        <strong>📎 Super Penting:</strong> Jangan lupa <em>attach</em> (lampirkan) file CV dan dokumen lainnya sebelum dikirim!
+    </div>
+    
+    <div class="form-group">
+        <div id="emailOutput" class="rich-text-box" contenteditable="true"></div>
+        
+        <div class="btn-group">
+            <button class="btn-primary" onclick="copyToClipboard()">📋 Copy Teks Email</button>
+            <button class="btn-gmail" onclick="openGmail()">✉️ Buka langsung di Gmail</button>
+            <span id="copyNotif" class="hidden" style="color: #10b981; font-size: 0.85rem; font-weight:bold;">Sip, teksnya udah dicopy! ✨</span>
+        </div>
+    </div>
+
+    <h2 class="section-title">2. File Surat Lamaran (Word)</h2>
+    <div class="btn-group">
+        <button class="btn-secondary" onclick="downloadSurat()">📥 Download Surat Lamaran (.docx)</button>
+    </div>
+
+    <div id="suratContent" class="hidden"></div>
+</div>
+
+<script>
+    const noHp = "0896-6270-2203";
+    const emailAnda = "shakiraaulianajma@gmail.com";
+    
+    // === FITUR MOTIVASI ACAK ===
+    const daftarMotivasi = [
+        "Semangat terus ya, Shakira! Setiap lamaran yang kamu kirim adalah satu langkah lebih dekat menuju impianmu.",
+        "Shakira Aulia Najma, kamu pasti bisa! Percaya pada kemampuanmu, usaha tidak akan mengkhianati hasil.",
+        "Hari ini adalah kesempatan baru. Kirimkan lamaranmu dengan penuh keyakinan dan senyuman, Shakira!",
+        "Jangan menyerah, Shakira. Rezeki dan tempat kerja yang paling tepat sedang menunggumu di waktu yang terbaik.",
+        "Kamu luar biasa, Shakira! Tetap semangat, jaga kesehatan, dan berikan yang terbaik dalam setiap usahamu.",
+        "Setiap kata 'belum rezeki' adalah jalan yang mengarahkanmu ke tempat yang jauh lebih baik. Terus melangkah!",
+        "Tarik napas panjang, kumpulkan semangatmu, dan klik tombol kirim. Masa depan cerah menantimu, Shakira!",
+        "Orang hebat tidak dihasilkan dari kemudahan, kesenangan, atau kenyamanan. Tetap berjuang ya, Shakira Aulia Najma!"
+    ];
+
+    function tampilkanMotivasi() {
+        const randomIndex = Math.floor(Math.random() * daftarMotivasi.length);
+        document.getElementById('teksMotivasi').innerText = `✨ "${daftarMotivasi[randomIndex]}" ✨`;
+    }
+
+    function getTanggalHariIni() {
+        const months = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+        const date = new Date();
+        return date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear();
+    }
+
+    function generateAll() {
+        const nama = document.getElementById('nama').value || "Shakira Aulia Najma";
+        const perusahaan = document.getElementById('perusahaan').value || "{nama perusahaan}";
+        const posisi = document.getElementById('posisi').value || "{posisi}";
+        const tanggal = getTanggalHariIni();
+
+        // 1. Generate Email Body dengan HTML (Tetap Formal untuk HRD)
+        const emailBodyHTML = `
+            <p>Yth. Tim Rekrutmen <strong>${perusahaan}</strong>,</p>
+            <p>Perkenalkan, nama saya <strong>${nama}</strong>. Melalui email ini, saya bermaksud mengajukan lamaran pekerjaan untuk posisi <strong>${posisi}</strong> di <strong>${perusahaan}</strong>.</p>
+            <p>Saya merupakan pribadi yang energik, cekatan dan mudah beradaptasi. Memiliki pengalaman profesional lebih dari 4 tahun di bidang administrasi dan koordinasi layanan. Dengan latar belakang pendidikan Akuntansi, saya memiliki ketelitian yang tinggi dalam pengelolaan dokumen, pelaporan, dan keuangan kantor.</p>
+            <p>Selama ini, saya terbiasa berperan sebagai narahubung utama bagi pihak eksternal maupun internal, mahir dalam manajemen jadwal yang dinamis, serta memiliki komitmen kuat dalam menjaga kerahasiaan informasi tingkat manajerial.</p>
+            <p>Sebagai bahan pertimbangan Bapak/Ibu, saya melampirkan beberapa dokumen pendukung dalam format PDF sebagai berikut:</p>
+            <ul>
+                <li><strong>Curriculum Vitae (CV)</strong></li>
+                <li><strong>Surat Lamaran Kerja (Cover Letter)</strong></li>
+                <li><strong>Dokumen Pendukung Lainnya (Ijazah, Transkrip, Pas Foto dan KTP)</strong></li>
+            </ul>
+            <p>Besar harapan saya untuk mendapatkan kesempatan wawancara agar dapat menjelaskan lebih mendalam mengenai kontribusi yang dapat saya berikan untuk mendukung operasional <strong>${posisi}</strong> di <strong>${perusahaan}</strong>.</p>
+            <p>Atas perhatian dan waktu Bapak/Ibu, saya ucapkan terima kasih.</p>
+            <p>Hormat saya,</p>
+            <p><strong>${nama}</strong><br>
+            No. HP: ${noHp}<br>
+            Email: ${emailAnda}<br>
+            Malang, Indonesia</p>
+        `;
+
+        document.getElementById('emailOutput').innerHTML = emailBodyHTML;
+
+        // 2. Generate Surat Lamaran untuk DOCX (Tetap Formal untuk HRD)
+        const suratLetter = `
+            <div style="font-family: Arial, sans-serif; font-size: 11pt;">
+                <p>Malang, ${tanggal}</p>
+                <br>
+                <p>Perihal: Lamaran Pekerjaan <strong>${posisi}</strong></p>
+                <br>
+                <p>Yth. Bapak/Ibu Human Resources Department<br><strong>${perusahaan}</strong><br>di Tempat</p>
+                <br>
+                <p>Dengan hormat,</p>
+                <p>Melalui surat ini, saya bermaksud menyampaikan ketertarikan saya untuk melamar posisi <strong>${posisi}</strong> di <strong>${perusahaan}</strong> sebagaimana informasi yang saya dapatkan.</p>
+                <p>Dengan pengalaman lebih dari 4 tahun di bidang administrasi, koordinasi stakeholder, dan latar belakang pendidikan Akuntansi, saya yakin dapat memberikan kontribusi nyata bagi perusahaan Anda. Keahlian akuntansi dan manajemen administrasi saya siap diaplikasikan untuk mendukung stabilitas keuangan dan operasional harian di <strong>${perusahaan}</strong>.</p>
+                <p>Dalam peran profesional saya sebelumnya, saya telah terbiasa menangani manajemen jadwal yang dinamis dan menjadi narahubung utama antara manajemen dengan pihak eksternal maupun internal. Di Kasoem Hearing Center, saya mengelola koordinasi yang kompleks yang menuntut ketelitian tinggi serta kemampuan komunikasi yang diplomatis.</p>
+                <p>Beberapa kualifikasi unggulan yang saya miliki meliputi:</p>
+                <ol>
+                    <li><strong>Dukungan Eksekutif & Administrasi:</strong> Mahir dalam pengelolaan agenda dan korespondensi bisnis.</li>
+                    <li><strong>Ketelitian Akuntansi:</strong> Latar belakang pendidikan memastikan setiap dokumen dikelola dengan akuntabel.</li>
+                    <li><strong>Komunikasi Profesional:</strong> Berpengalaman dalam memberikan layanan high-touch kepada klien dan mitra profesional.</li>
+                </ol>
+                <p>Saya adalah pribadi yang adaptif dan mampu bekerja di bawah tekanan dalam lingkungan yang cepat. Besar harapan saya untuk dapat mendiskusikan kualifikasi saya lebih lanjut dalam sesi wawancara.</p>
+                <p>Hormat saya,</p>
+                <br><br>
+                <p><strong>${nama}</strong></p>
+            </div>
+        `;
+        document.getElementById('suratContent').innerHTML = suratLetter;
+    }
+
+    function copyToClipboard() {
+        const emailDiv = document.getElementById("emailOutput");
+        const selection = window.getSelection();
+        const range = document.createRange();
+        
+        range.selectNodeContents(emailDiv);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        try {
+            document.execCommand('copy');
+            const notif = document.getElementById("copyNotif");
+            notif.classList.remove("hidden");
+            setTimeout(() => { notif.classList.add("hidden"); }, 3000);
+        } catch (err) {
+            alert('Gagal menyalin teks. Silakan blok teks manual dan tekan Ctrl+C.');
+        }
+        
+        selection.removeAllRanges();
+    }
+
+    function openGmail() {
+        const emailTujuan = document.getElementById('emailTujuan').value;
+        const subject = document.getElementById('subject').value || "Lamaran Pekerjaan";
+        const bodyText = document.getElementById('emailOutput').innerText;
+        
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(emailTujuan)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+        window.open(gmailUrl, '_blank');
+    }
+
+    function downloadSurat() {
+        const content = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>" + document.getElementById("suratContent").innerHTML + "</body></html>";
+        const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
+        
+        const nama = document.getElementById('nama').value || "Shakira";
+        const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
+        const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.docx`;
+        
+        saveAs(converted, fileName);
+    }
+
+    window.onload = function() {
+        tampilkanMotivasi();
+        generateAll();
+    };
+</script>
+
+</body>
+</html>
