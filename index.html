@@ -24,8 +24,9 @@
         
         h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; color: #0f172a; }
         
-        .motivasi-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #bfdbfe; }
-        .motivasi-text { color: #1e3a8a; font-size: 1.05rem; font-style: italic; font-weight: 500; margin: 0; line-height: 1.5; }
+        /* 5. Styling Motivasi (Soft Pink) */
+        .motivasi-box { background: linear-gradient(135deg, #fdf2f8, #fce7f3); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #fbcfe8; }
+        .motivasi-text { color: #be185d; font-size: 1.05rem; font-style: italic; font-weight: 500; margin: 0; line-height: 1.5; }
 
         /* Styling AI Section */
         .ai-box { background-color: #f5f3ff; border: 1px dashed #c4b5fd; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
@@ -41,10 +42,17 @@
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid white; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Styling Preview Image */
+        /* Styling Preview Image & Modal Zoom */
         .preview-container { display: none; margin-top: 1.5rem; text-align: center; }
-        .preview-container img { max-width: 100%; max-height: 350px; border-radius: 8px; border: 2px dashed #c4b5fd; padding: 4px; background: white; object-fit: contain; }
+        .preview-container img { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px dashed #c4b5fd; padding: 4px; background: white; object-fit: contain; cursor: zoom-in; transition: transform 0.2s; }
+        .preview-container img:hover { transform: scale(1.02); }
         .preview-title { font-size: 0.85rem; color: #5b21b6; font-weight: 600; margin-bottom: 0.5rem; }
+
+        /* CSS untuk Pop-up Modal Gambar */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(4px); overflow: hidden; }
+        .modal-content { margin: auto; display: block; max-width: 95%; max-height: 90vh; position: relative; top: 50%; transform: translateY(-50%); border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); object-fit: contain; }
+        .close-modal { position: absolute; top: 20px; right: 30px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; z-index: 1001; }
+        .close-modal:hover { color: #f43f5e; }
 
         .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
         .form-group { margin-bottom: 1.5rem; flex: 1; min-width: 250px; }
@@ -106,8 +114,8 @@
         <p id="aiStatus" style="font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; display: none;"></p>
 
         <div id="previewContainer" class="preview-container">
-            <div class="preview-title">🖼️ Preview Poster:</div>
-            <img id="posterPreview" src="" alt="Preview Poster">
+            <div class="preview-title">🖼️ Preview Poster (Klik untuk perbesar):</div>
+            <img id="posterPreview" src="" alt="Preview Poster" onclick="openModal()" title="Klik untuk Zoom">
         </div>
     </div>
 
@@ -145,22 +153,21 @@
         </div>
     </div>
 
-    <div class="form-row">
-        <div class="form-group">
-            <label for="emailTujuan">Email HRD-nya</label>
-            <div class="input-group">
-                <input type="email" id="emailTujuan" placeholder="Contoh: hrd@perusahaannya.com" oninput="generateAll()">
-                <button class="btn-paste" onclick="pasteFromClipboard('emailTujuan')" title="Paste Teks">📋</button>
-            </div>
+    <div class="form-group">
+        <label for="emailTujuan">Email HRD-nya</label>
+        <div class="input-group">
+            <input type="email" id="emailTujuan" placeholder="Contoh: hrd@perusahaannya.com" oninput="generateAll()">
+            <button class="btn-paste" onclick="pasteFromClipboard('emailTujuan')" title="Paste Teks">📋</button>
         </div>
-        <div class="form-group">
-            <label for="subject">
-                Subjek Email 
-                <span class="label-hint">⚠️ Pastikan sesuai format dari lowongan kerjanya ya.</span>
-            </label>
-            <div class="input-group">
-                <input type="text" id="subject" placeholder="Contoh: Staff Administrasi_Shakira Aulia Najma" oninput="tandaiSubjekManual(); generateAll()">
-            </div>
+    </div>
+
+    <div class="form-group">
+        <label for="subject">
+            Subjek Email 
+            <span class="label-hint">⚠️ Pastiin sesuai format dari lowongan kerjanya ya.</span>
+        </label>
+        <div class="input-group">
+            <input type="text" id="subject" placeholder="Contoh: Staff Administrasi_Shakira Aulia Najma" oninput="tandaiSubjekManual(); generateAll()">
         </div>
     </div>
 
@@ -190,10 +197,14 @@
     </div>
 </div>
 
+<div id="imageModal" class="modal" onclick="closeModal(event)">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+
 <script>
     let isSubjekManual = false;
 
-    // === FITUR AI GEMINI ===
     window.addEventListener('DOMContentLoaded', () => {
         const savedKey = localStorage.getItem('geminiApiKey');
         if (savedKey) document.getElementById('geminiApiKey').value = savedKey;
@@ -204,14 +215,34 @@
         localStorage.setItem('geminiApiKey', key);
     }
 
-    // Fungsi memunculkan gambar begitu dipilih
+    // Modal Zoom Functions
+    function openModal() {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        const previewImg = document.getElementById("posterPreview");
+        
+        if(previewImg.src && previewImg.src !== window.location.href) {
+            modal.style.display = "block";
+            modalImg.src = previewImg.src;
+            document.body.style.overflow = "hidden"; // Cegah scroll background
+        }
+    }
+
+    function closeModal(event) {
+        // Tutup jika yang diklik adalah tombol X atau area hitam di luar gambar
+        if(event.target.id === "imageModal" || event.target.classList.contains("close-modal")) {
+            document.getElementById("imageModal").style.display = "none";
+            document.body.style.overflow = "auto"; // Kembalikan scroll
+        }
+    }
+
     function previewImage() {
         const fileInput = document.getElementById('posterUpload');
         const previewContainer = document.getElementById('previewContainer');
         const posterPreview = document.getElementById('posterPreview');
         const statusMsg = document.getElementById('aiStatus');
         
-        statusMsg.style.display = 'none'; // Reset status text
+        statusMsg.style.display = 'none'; 
         
         if (fileInput.files && fileInput.files[0]) {
             const reader = new FileReader();
@@ -252,7 +283,6 @@
             statusMsg.innerText = 'AI sedang membaca poster...';
 
             try {
-                // Update Prompt: Menggunakan gemini-1.5-flash dan memaksa Title Case (kecuali singkatan)
                 const prompt = `Ekstrak informasi dari gambar poster lowongan kerja ini: 
 1. Nama Perusahaan
 2. Posisi yang ditawarkan (jika banyak, ambil yang paling utama)
@@ -265,7 +295,6 @@ ATURAN FORMATTING PENTING:
 
 Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {"perusahaan": "nama", "posisi": "posisi", "email": "email@domain.com"}. Jangan tambahkan format markdown maupun teks pengantar apapun.`;
                 
-                // PANGGIL MODEL 1.5-FLASH
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -294,7 +323,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
                 generateAll(); 
                 
                 statusMsg.style.color = '#10b981';
-                statusMsg.innerText = '✅ Berhasil! Form sudah diisi (silakan kroscek dengan gambar di atas).';
+                statusMsg.innerText = '✅ Berhasil! Form sudah diisi (silakan klik gambar di atas untuk kroscek).';
             } catch (error) {
                 console.error(error);
                 statusMsg.style.color = '#ef4444';
@@ -309,20 +338,33 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
     }
     // ========================
 
+    // 1. Variasi Panggilan Romantis & Kalimat Baru
+// 1. variasi panggilan romantis & kalimat baru (tanpa huruf kapital)
+    const panggilanRomantis = ["sayangkuu", "cintakuu", "belahan jiwaaku", "cantik"];
+    
     const daftarMotivasi = [
-        "Semangat terus ya, Shakira! Setiap lamaran yang kamu kirim adalah satu langkah lebih dekat menuju impianmu.",
-        "Shakira Aulia Najma, kamu pasti bisa! Percaya pada kemampuanmu, usaha tidak akan mengkhianati hasil.",
-        "Hari ini adalah kesempatan baru. Kirimkan lamaranmu dengan penuh keyakinan dan senyuman, Shakira!",
-        "Jangan menyerah, Shakira. Rezeki dan tempat kerja yang paling tepat sedang menunggumu di waktu yang terbaik.",
-        "Kamu luar biasa, Shakira! Tetap semangat, jaga kesehatan, dan berikan yang terbaik dalam setiap usahamu.",
-        "Setiap kata 'belum rezeki' adalah jalan yang mengarahkanmu ke tempat yang jauh lebih baik. Terus melangkah!",
-        "Tarik napas panjang, kumpulkan semangatmu, dan klik tombol kirim. Masa depan cerah menantimu, Shakira!",
-        "Orang hebat tidak dihasilkan dari kemudahan, kesenangan, atau kenyamanan. Tetap berjuang ya, Shakira Aulia Najma!"
+        "semangat terus apply-nya ya, {panggilan}! aku tahu kamu pasti bisa dapet kerjaan yang pas banget buat kamu.",
+        "cieee yang lagi rajin nyari kerja. jangan lupa istirahat juga ya, {panggilan}, jangan dipaksain banget.",
+        "tarik napas, hembuskan, trus klik kirim deh! semoga rezeki kamu ada di sini ya, {panggilan}.",
+        "hari ini belum ada panggilan? nggak apa-apa, {panggilan}. namanya juga proses, yang penting besok gas lagi!",
+        "setiap satu email lamaran yang kekirim, makin deket juga kamu sama kerjaan impian. semangat terus, {panggilan}!",
+        "aku selalu doain yang terbaik buat kamu. semoga hrd-nya langsung naksir sama cv kamu ya, {panggilan}!",
+        "{panggilan}, jangan lupa minum air putih yang banyak ya sambil nungguin balasan email dari hrd.",
+        "kalau capek rebahan dulu aja, {panggilan}. tapi habis itu semangat lagi ya apply-nya!",
+        "kerjaan idaman lagi jalan nyamperin kamu nih. kamu tinggal jemput aja pakai email ini, {panggilan}.",
+        "pasti pusing ya baca syarat loker? tenang aja, {panggilan}, kamu tuh keren, pasti ada jalan buat orang sehebat kamu.",
+        "nggak usah overthinking ya, {panggilan}. tugas kamu cuma berusaha sebaik mungkin, sisanya biar tuhan yang atur.",
+        "klik send dan lupakan! fokus ke lamaran berikutnya aja ya, {panggilan}. 🚀"
     ];
 
     function tampilkanMotivasi() {
+        const randomPanggilan = panggilanRomantis[Math.floor(Math.random() * panggilanRomantis.length)];
         const randomIndex = Math.floor(Math.random() * daftarMotivasi.length);
-        document.getElementById('teksMotivasi').innerText = `✨ "${daftarMotivasi[randomIndex]}" ✨`;
+        
+        // Ganti teks placeholder {panggilan} dengan pilihan random (Sayangku / Cintaku)
+        const teks = daftarMotivasi[randomIndex].replace(/\{panggilan\}/g, randomPanggilan);
+        
+        document.getElementById('teksMotivasi').innerText = `✨ "${teks}" ✨`;
     }
 
     function getTanggalHariIni() {
@@ -344,7 +386,6 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
     }
 
     function generateAll() {
-        // MENGAMBIL DATA DARI INPUT (Bukan lagi hardcode)
         const nama = document.getElementById('nama').value || "Shakira Aulia Najma";
         const noHp = document.getElementById('noHp').value || "0896-6270-2203";
         const emailAnda = document.getElementById('emailPengirim').value || "shakiraaulianajma@gmail.com";
