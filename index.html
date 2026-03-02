@@ -1,23 +1,508 @@
-Yth. Tim Rekrutmen {nama perusahaan},
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asisten Lamaran Kerja Shakira</title>
+    <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #334155;
+            --warning: #f59e0b;
+            --ai: #8b5cf6;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem; margin: 0; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; background: var(--surface); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; color: #0f172a; }
+        
+        /* Styling Motivasi (Soft Pink) */
+        .motivasi-box { background: linear-gradient(135deg, #fdf2f8, #fce7f3); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #fbcfe8; }
+        .motivasi-text { color: #be185d; font-size: 1.05rem; font-style: italic; font-weight: 500; margin: 0; line-height: 1.5; }
 
-Perkenalkan, nama saya Shakira Aulia Najma. Melalui email ini, saya bermaksud mengajukan lamaran pekerjaan untuk posisi {posisi} di {nama perusahaan}.
+        /* Styling AI Section */
+        .ai-box { background-color: #f5f3ff; border: 1px dashed #c4b5fd; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
+        .ai-title { color: #5b21b6; font-weight: 600; margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .api-key-group { margin-bottom: 1rem; }
+        .api-key-group label { font-size: 0.8rem; color: #6d28d9; }
+        input[type="password"] { width: 100%; padding: 0.5rem; border: 1px solid #ddd6fe; border-radius: 6px; font-size: 0.9rem; }
+        .file-upload-wrapper { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        input[type="file"] { flex: 1; padding: 0.5rem; border: 1px solid #ddd6fe; border-radius: 6px; background: white; cursor: pointer; }
+        .btn-ai { background-color: var(--ai); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-ai:hover { background-color: #7c3aed; }
+        .btn-ai:disabled { background-color: #c4b5fd; cursor: not-allowed; }
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid white; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-Saya merupakan pribadi yang energik, cekatan dan mudah beradaptasi. Memiliki pengalaman profesional lebih dari 4 tahun di bidang administrasi dan koordinasi layanan. Dengan latar belakang pendidikan Akuntansi, saya memiliki ketelitian yang tinggi dalam pengelolaan dokumen, pelaporan, dan keuangan kantor.
+        /* Styling Preview Image & Modal Zoom */
+        .preview-container { display: none; margin-top: 1.5rem; text-align: center; }
+        .preview-container img { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px dashed #c4b5fd; padding: 4px; background: white; object-fit: contain; cursor: zoom-in; transition: transform 0.2s; }
+        .preview-container img:hover { transform: scale(1.02); }
+        .preview-title { font-size: 0.85rem; color: #5b21b6; font-weight: 600; margin-bottom: 0.5rem; }
 
-Selama ini, saya terbiasa berperan sebagai narahubung utama bagi pihak eksternal maupun internal, mahir dalam manajemen jadwal yang dinamis, serta memiliki komitmen kuat dalam menjaga kerahasiaan informasi tingkat manajerial.
+        /* CSS untuk Pop-up Modal Gambar */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(4px); overflow: hidden; }
+        .modal-content { margin: auto; display: block; max-width: 95%; max-height: 90vh; position: relative; top: 50%; transform: translateY(-50%); border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); object-fit: contain; }
+        .close-modal { position: absolute; top: 20px; right: 30px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; z-index: 1001; }
+        .close-modal:hover { color: #f43f5e; }
 
-Sebagai bahan pertimbangan Bapak/Ibu, saya melampirkan beberapa dokumen pendukung dalam format PDF sebagai berikut:
+        .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .form-group { margin-bottom: 1.5rem; flex: 1; min-width: 250px; }
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: #1e293b; }
+        .label-hint { display: block; font-size: 0.8rem; color: #b45309; font-weight: normal; margin-top: 2px; }
+        
+        .input-group { display: flex; gap: 0.5rem; align-items: stretch; }
+        input[type="text"], input[type="email"] { flex: 1; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; min-width: 0; }
+        input[type="text"]:focus, input[type="email"]:focus { outline: none; border-color: var(--primary); }
+        
+        .btn-paste { background-color: #f1f5f9; border: 1px solid var(--border); border-radius: 6px; padding: 0 1rem; cursor: pointer; transition: background-color 0.2s; font-size: 1.2rem; color: #475569; }
+        .btn-paste:hover { background-color: #e2e8f0; }
+        
+        .rich-text-box { width: 100%; min-height: 250px; padding: 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; background: #f1f5f9; overflow-y: auto; outline: none; transition: border-color 0.2s; }
+        .rich-text-box:focus { border-color: var(--primary); background: #ffffff; }
+        .rich-text-box p, .rich-text-box ul { margin-top: 0; margin-bottom: 0.75rem; }
+        
+        .btn-group { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
+        button { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s; font-size: 0.9rem; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #10b981; color: white; }
+        .btn-secondary:hover { background-color: #059669; }
+        .btn-gmail { background-color: #ea4335; color: white; }
+        .btn-gmail:hover { background-color: #c5221f; }
+        .section-title { font-size: 1.2rem; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); color: #0f172a; }
+        .alert { background-color: #fef3c7; border-left: 4px solid var(--warning); padding: 1rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.6; color: #451a03; }
+        
+        .footer-note { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #64748b; border-top: 1px solid var(--border); padding-top: 1rem; }
+        .footer-note a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
 
-Curriculum Vitae (CV)
-Surat Lamaran Kerja (Cover Letter)
-Dokumen Pendukung Lainnya (Ijazah, Transkrip, Pas Foto dan KTP)
-Besar harapan saya untuk mendapatkan kesempatan wawancara agar dapat menjelaskan lebih mendalam mengenai kontribusi yang dapat saya berikan untuk mendukung operasional {posisi} di {nama perusahaan}.
+<div class="container">
+    <h1>✨ Asisten Lamaran Kerja Shakira ✨</h1>
+    
+    <div class="motivasi-box">
+        <p id="teksMotivasi" class="motivasi-text"></p>
+    </div>
 
-Atas perhatian dan waktu Bapak/Ibu, saya ucapkan terima kasih.
+    <div class="ai-box">
+        <h3 class="ai-title">🤖 Auto-Isi dari Poster Loker (Gemini AI)</h3>
+        <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0;">Upload screenshot / foto poster loker, AI akan otomatis membaca dan mengisi form di bawah.</p>
+        
+        <div class="api-key-group">
+            <label for="geminiApiKey">Gemini API Key (Tersimpan aman di browser):</label>
+            <input type="password" id="geminiApiKey" placeholder="Masukkan API Key (AIzaSy...) di sini..." onchange="saveApiKey()">
+        </div>
 
-Hormat saya,
+        <div class="file-upload-wrapper">
+            <input type="file" id="posterUpload" accept="image/*" onchange="previewImage()">
+            <button class="btn-ai" id="btnProsesAI" onclick="processPosterWithAI()">
+                <div class="loader" id="aiLoader"></div>
+                <span id="aiBtnText">✨ Ekstrak Data</span>
+            </button>
+        </div>
+        <p id="aiStatus" style="font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; display: none;"></p>
 
-Shakira Aulia Najma
-No. HP: 0896-6270-2203
-Email: shakiraaulianajma@gmail.com
-Malang, Indonesia
+        <div id="previewContainer" class="preview-container">
+            <div class="preview-title">🖼️ Preview Poster (Klik untuk perbesar):</div>
+            <img id="posterPreview" src="" alt="Preview Poster" onclick="openModal()" title="Klik untuk Zoom">
+        </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top: 0;">📝 Data Pribadi</h2>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="nama">Nama Kamu</label>
+            <input type="text" id="nama" value="Shakira Aulia Najma" placeholder="Isi namamu di sini..." oninput="generateAll()">
+        </div>
+        <div class="form-group">
+            <label for="noHp">Nomor HP</label>
+            <input type="text" id="noHp" value="0896-6270-2203" placeholder="Contoh: 0812345678" oninput="generateAll()">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="emailPengirim">Email Kamu</label>
+        <input type="email" id="emailPengirim" value="shakiraaulianajma@gmail.com" placeholder="Contoh: shakira@gmail.com" oninput="generateAll()">
+    </div>
+
+    <h2 class="section-title">🏢 Tujuan Lamaran</h2>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="perusahaan">Mau Lamar ke Perusahaan Apa?</label>
+            <div class="input-group">
+                <input type="text" id="perusahaan" placeholder="Contoh: PT Bangun Negeri" oninput="generateAll()">
+                <button class="btn-paste" onclick="pasteFromClipboard('perusahaan')" title="Paste Teks">📋</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="posisi">Posisi Impianmu</label>
+            <div class="input-group">
+                <input type="text" id="posisi" placeholder="Contoh: Staff Administrasi" oninput="generateAll()">
+                <button class="btn-paste" onclick="pasteFromClipboard('posisi')" title="Paste Teks">📋</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="emailTujuan">Email HRD-nya</label>
+        <div class="input-group">
+            <input type="email" id="emailTujuan" placeholder="Contoh: hrd@perusahaannya.com" oninput="generateAll()">
+            <button class="btn-paste" onclick="pasteFromClipboard('emailTujuan')" title="Paste Teks">📋</button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="subject">
+            Subjek Email 
+            <span class="label-hint">⚠️ Pastiin sesuai format dari lowongan kerjanya ya.</span>
+        </label>
+        <div class="input-group">
+            <input type="text" id="subject" placeholder="Contoh: Staff Administrasi_Shakira Aulia Najma" oninput="tandaiSubjekManual(); generateAll()">
+        </div>
+    </div>
+
+    <h2 class="section-title">1. Teks Buat di Email</h2>
+    <div class="alert">
+        <strong>💡 Tips biar rapi:</strong> Mending kamu klik <strong>"Copy Teks Email"</strong> terus <em>paste</em> sendiri di kotak tulis Gmail ya. Kalau pakai tombol "Buka langsung di Gmail", format tebalnya (bold) suka hilang karena bawaan dari sananya.
+    </div>
+    
+    <div class="form-group">
+        <div id="emailOutput" class="rich-text-box" contenteditable="true"></div>
+        <div class="btn-group">
+            <button id="btnCopyEmail" class="btn-primary" onclick="copyToClipboard()">📋 Copy Teks Email</button>
+            <button class="btn-gmail" onclick="openGmail()">✉️ Buka langsung di Gmail</button>
+        </div>
+    </div>
+
+    <h2 class="section-title">2. File Surat Lamaran (Word)</h2>
+    <div class="btn-group">
+        <button class="btn-secondary" onclick="downloadSurat()">📥 Download Surat Lamaran (.docx)</button>
+    </div>
+
+    <div id="suratContent" style="display: none;"></div>
+    
+    <div class="footer-note">
+        Ingin tahu cara kerja atau kodingan website ini? Baca <a href="https://github.com/username-anda/nama-repository" target="_blank">Dokumentasinya (README) di sini</a>.
+    </div>
+</div>
+
+<div id="imageModal" class="modal" onclick="closeModal(event)">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+
+<script>
+    let isSubjekManual = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedKey = localStorage.getItem('geminiApiKey');
+        if (savedKey) document.getElementById('geminiApiKey').value = savedKey;
+    });
+
+    function saveApiKey() {
+        const key = document.getElementById('geminiApiKey').value;
+        localStorage.setItem('geminiApiKey', key);
+    }
+
+    // Modal Zoom Functions
+    function openModal() {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImg");
+        const previewImg = document.getElementById("posterPreview");
+        
+        if(previewImg.src && previewImg.src !== window.location.href) {
+            modal.style.display = "block";
+            modalImg.src = previewImg.src;
+            document.body.style.overflow = "hidden"; // Cegah scroll background
+        }
+    }
+
+    function closeModal(event) {
+        if(event.target.id === "imageModal" || event.target.classList.contains("close-modal")) {
+            document.getElementById("imageModal").style.display = "none";
+            document.body.style.overflow = "auto"; // Kembalikan scroll
+        }
+    }
+
+    function previewImage() {
+        const fileInput = document.getElementById('posterUpload');
+        const previewContainer = document.getElementById('previewContainer');
+        const posterPreview = document.getElementById('posterPreview');
+        const statusMsg = document.getElementById('aiStatus');
+        
+        statusMsg.style.display = 'none'; 
+        
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                posterPreview.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            previewContainer.style.display = 'none';
+            posterPreview.src = "";
+        }
+    }
+
+    async function processPosterWithAI() {
+        const apiKey = document.getElementById('geminiApiKey').value;
+        const fileInput = document.getElementById('posterUpload');
+        const statusMsg = document.getElementById('aiStatus');
+        const btn = document.getElementById('btnProsesAI');
+        const loader = document.getElementById('aiLoader');
+        const btnText = document.getElementById('aiBtnText');
+
+        if (!apiKey) { alert('Tolong masukkan Gemini API Key terlebih dahulu ya!'); return; }
+        if (!fileInput.files || fileInput.files.length === 0) { alert('Pilih file gambar poster loker dulu!'); return; }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onloadend = async function() {
+            const base64data = reader.result.split(',')[1];
+            const mimeType = file.type;
+
+            btn.disabled = true;
+            loader.style.display = 'block';
+            btnText.innerText = 'Memproses...';
+            statusMsg.style.display = 'block';
+            statusMsg.style.color = '#5b21b6';
+            statusMsg.innerText = 'AI sedang membaca poster...';
+
+            try {
+                const prompt = `Ekstrak informasi dari gambar poster lowongan kerja ini: 
+1. Nama Perusahaan
+2. Posisi yang ditawarkan (jika banyak, ambil yang paling utama)
+3. Email HRD / alamat pengiriman lamaran. 
+
+ATURAN FORMATTING PENTING:
+- Ubah penulisan nama perusahaan dan posisi menjadi Title Case (hanya huruf pertama setiap kata yang besar). 
+- Contoh: "PT TOKO JAYA" harus ditulis menjadi "PT Toko Jaya". "STAFF ADMINISTRASI" menjadi "Staff Administrasi".
+- Pengecualian: Singkatan bentuk badan usaha atau istilah umum (seperti PT, CV, Tbk, IT, HRD, UI/UX) HARUS tetap huruf kapital semua.
+
+Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {"perusahaan": "nama", "posisi": "posisi", "email": "email@domain.com"}. Jangan tambahkan format markdown maupun teks pengantar apapun.`;
+                
+                // MENGGUNAKAN VERSI GEMINI 2.5 FLASH TERBARU
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inline_data: { mime_type: mimeType, data: base64data } }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) throw new Error('Gagal menghubungi API. Cek API Key Anda.');
+
+                const data = await response.json();
+                let rawText = data.candidates[0].content.parts[0].text;
+                
+                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const extractedData = JSON.parse(rawText);
+
+                if (extractedData.perusahaan) document.getElementById('perusahaan').value = extractedData.perusahaan;
+                if (extractedData.posisi) document.getElementById('posisi').value = extractedData.posisi;
+                if (extractedData.email) document.getElementById('emailTujuan').value = extractedData.email;
+
+                generateAll(); 
+                
+                statusMsg.style.color = '#10b981';
+                statusMsg.innerText = '✅ Berhasil! Form sudah diisi (silakan klik gambar di atas untuk kroscek).';
+            } catch (error) {
+                console.error(error);
+                statusMsg.style.color = '#ef4444';
+                statusMsg.innerText = '❌ Gagal membaca gambar. Pastikan gambar jelas atau API Key benar.';
+            } finally {
+                btn.disabled = false;
+                loader.style.display = 'none';
+                btnText.innerText = '✨ Ekstrak Data';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+    // ========================
+
+    // Variasi Panggilan Romantis & Kalimat Baru (Tanpa Huruf Kapital)
+    const panggilanRomantis = ["sayangku", "cintaku", "sayang", "cantik"];
+    
+    const daftarMotivasi = [
+        "semangat terus apply-nya ya, {panggilan}! aku tahu kamu pasti bisa dapet kerjaan yang pas banget buat kamu.",
+        "cieee yang lagi rajin nyari kerja. jangan lupa istirahat juga ya, {panggilan}, jangan dipaksain banget.",
+        "tarik napas, hembuskan, trus klik kirim deh! semoga rezeki kamu ada di sini ya, {panggilan}.",
+        "hari ini belum ada panggilan? nggak apa-apa, {panggilan}. namanya juga proses, yang penting besok gas lagi!",
+        "setiap satu email lamaran yang kekirim, makin deket juga kamu sama kerjaan impian. semangat terus, {panggilan}!",
+        "aku selalu doain yang terbaik buat kamu. semoga hrd-nya langsung naksir sama cv kamu ya, {panggilan}!",
+        "{panggilan}, jangan lupa minum air putih yang banyak ya sambil nungguin balasan email dari hrd.",
+        "kalau capek rebahan dulu aja, {panggilan}. tapi habis itu semangat lagi ya apply-nya!",
+        "kerjaan idaman lagi jalan nyamperin kamu nih. kamu tinggal jemput aja pakai email ini, {panggilan}.",
+        "pasti pusing ya baca syarat loker? tenang aja, {panggilan}, kamu tuh keren, pasti ada jalan buat orang sehebat kamu.",
+        "nggak usah overthinking ya, {panggilan}. tugas kamu cuma berusaha sebaik mungkin, sisanya biar tuhan yang atur.",
+        "klik send dan lupakan! fokus ke lamaran berikutnya aja ya, {panggilan}. 🚀"
+    ];
+
+    function tampilkanMotivasi() {
+        const randomPanggilan = panggilanRomantis[Math.floor(Math.random() * panggilanRomantis.length)];
+        const randomIndex = Math.floor(Math.random() * daftarMotivasi.length);
+        const teks = daftarMotivasi[randomIndex].replace(/\{panggilan\}/g, randomPanggilan);
+        document.getElementById('teksMotivasi').innerText = `✨ "${teks}" ✨`;
+    }
+
+    function getTanggalHariIni() {
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const date = new Date();
+        return date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear();
+    }
+
+    function tandaiSubjekManual() { isSubjekManual = true; }
+
+    async function pasteFromClipboard(elementId) {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById(elementId).value = text;
+            generateAll(); 
+        } catch (err) {
+            alert("Oops! Browser-mu nggak kasih izin paste otomatis. Pastikan kamu kasih izin clipboard, atau paste manual aja.");
+        }
+    }
+
+    function generateAll() {
+        const nama = document.getElementById('nama').value || "Shakira Aulia Najma";
+        const noHp = document.getElementById('noHp').value || "0896-6270-2203";
+        const emailAnda = document.getElementById('emailPengirim').value || "shakiraaulianajma@gmail.com";
+        
+        const perusahaan = document.getElementById('perusahaan').value || "{nama perusahaan}";
+        const posisi = document.getElementById('posisi').value || "{posisi}";
+        const tanggal = getTanggalHariIni();
+
+        if (!isSubjekManual) {
+            const subjekInput = document.getElementById('subject');
+            subjekInput.value = (posisi !== "{posisi}" && posisi !== "") ? `${posisi}_${nama}` : "";
+        }
+
+        const emailBodyHTML = `
+            <p>Yth. Tim Rekrutmen <strong>${perusahaan}</strong>,</p>
+            <p>Perkenalkan, nama saya <strong>${nama}</strong>. Melalui email ini, saya bermaksud mengajukan lamaran pekerjaan untuk posisi <strong>${posisi}</strong> di <strong>${perusahaan}</strong>.</p>
+            <p>Saya merupakan pribadi yang energik, cekatan dan mudah beradaptasi. Memiliki pengalaman profesional lebih dari 4 tahun di bidang administrasi dan koordinasi layanan. Dengan latar belakang pendidikan Akuntansi, saya memiliki ketelitian yang tinggi dalam pengelolaan dokumen, pelaporan, dan keuangan kantor.</p>
+            <p>Selama ini, saya terbiasa berperan sebagai narahubung utama bagi pihak eksternal maupun internal, mahir dalam manajemen jadwal yang dinamis, serta memiliki komitmen kuat dalam menjaga kerahasiaan informasi tingkat manajerial.</p>
+            <p>Sebagai bahan pertimbangan Bapak/Ibu, saya melampirkan beberapa dokumen pendukung dalam format PDF sebagai berikut:</p>
+            <ul>
+                <li><strong>Curriculum Vitae (CV)</strong></li>
+                <li><strong>Surat Lamaran Kerja (Cover Letter)</strong></li>
+                <li><strong>Dokumen Pendukung Lainnya (Ijazah, Transkrip, Pas Foto dan KTP)</strong></li>
+            </ul>
+            <p>Besar harapan saya untuk mendapatkan kesempatan wawancara agar dapat menjelaskan lebih mendalam mengenai kontribusi yang dapat saya berikan untuk mendukung operasional <strong>${posisi}</strong> di <strong>${perusahaan}</strong>.</p>
+            <p>Atas perhatian dan waktu Bapak/Ibu, saya ucapkan terima kasih.</p>
+            <p>Hormat saya,</p>
+            <p><strong>${nama}</strong><br>
+            No. HP: ${noHp}<br>
+            Email: ${emailAnda}<br>
+            Malang, Indonesia</p>
+        `;
+
+        document.getElementById('emailOutput').innerHTML = emailBodyHTML;
+
+        const suratLetter = `
+            <div style="font-family: Arial, sans-serif; font-size: 11pt;">
+                <p>Malang, ${tanggal}</p><br>
+                <p>Perihal: Lamaran Pekerjaan <strong>${posisi}</strong></p><br>
+                <p>Yth. Bapak/Ibu Human Resources Department<br><strong>${perusahaan}</strong><br>di Tempat</p><br>
+                <p>Dengan hormat,</p>
+                <p>Melalui surat ini, saya bermaksud menyampaikan ketertarikan saya untuk melamar posisi <strong>${posisi}</strong> di <strong>${perusahaan}</strong> sebagaimana informasi yang saya dapatkan.</p>
+                <p>Dengan pengalaman lebih dari 4 tahun di bidang administrasi, koordinasi stakeholder, dan latar belakang pendidikan Akuntansi, saya yakin dapat memberikan kontribusi nyata bagi perusahaan Anda. Keahlian akuntansi dan manajemen administrasi saya siap diaplikasikan untuk mendukung stabilitas keuangan dan operasional harian di <strong>${perusahaan}</strong>.</p>
+                <p>Dalam peran profesional saya sebelumnya, saya telah terbiasa menangani manajemen jadwal yang dinamis dan menjadi narahubung utama antara manajemen dengan pihak eksternal maupun internal. Di Kasoem Hearing Center, saya mengelola koordinasi yang kompleks yang menuntut ketelitian tinggi serta kemampuan komunikasi yang diplomatis.</p>
+                <p>Beberapa kualifikasi unggulan yang saya miliki meliputi:</p>
+                <ol>
+                    <li><strong>Dukungan Eksekutif & Administrasi:</strong> Mahir dalam pengelolaan agenda dan korespondensi bisnis.</li>
+                    <li><strong>Ketelitian Akuntansi:</strong> Latar belakang pendidikan memastikan setiap dokumen dikelola dengan akuntabel.</li>
+                    <li><strong>Komunikasi Profesional:</strong> Berpengalaman dalam memberikan layanan high-touch kepada klien dan mitra profesional.</li>
+                </ol>
+                <p>Saya adalah pribadi yang adaptif dan mampu bekerja di bawah tekanan dalam lingkungan yang cepat. Besar harapan saya untuk dapat mendiskusikan kualifikasi saya lebih lanjut dalam sesi wawancara.</p>
+                <p>Hormat saya,</p><br><br>
+                <p><strong>${nama}</strong></p>
+            </div>
+        `;
+        document.getElementById('suratContent').innerHTML = suratLetter;
+    }
+
+    // Fungsi Copy dengan Notifikasi Tombol Berubah Warna
+    function copyToClipboard() {
+        const emailDiv = document.getElementById("emailOutput");
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(emailDiv);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        try {
+            document.execCommand('copy');
+            
+            // Animasi Tombol Copy
+            const copyBtn = document.getElementById("btnCopyEmail");
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = "✅ Berhasil di-copy sayang!";
+            copyBtn.style.backgroundColor = "#10b981"; // Ubah ke warna hijau success
+            
+            // Kembalikan ke semula setelah 3 detik
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.style.backgroundColor = ""; 
+            }, 3000);
+            
+        } catch (err) { 
+            alert('Gagal menyalin teks. Silakan blok teks manual dan tekan Ctrl+C.'); 
+        }
+        selection.removeAllRanges();
+    }
+
+    function openGmail() {
+        const emailTujuan = document.getElementById('emailTujuan').value;
+        const subject = document.getElementById('subject').value || "Lamaran Pekerjaan";
+        const bodyText = document.getElementById('emailOutput').innerText;
+        const to = encodeURIComponent(emailTujuan);
+        const su = encodeURIComponent(subject);
+        const body = encodeURIComponent(bodyText);
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isIOS) {
+            window.location.href = `googlegmail:///co?to=${to}&subject=${su}&body=${body}`;
+            setTimeout(() => { window.location.href = `mailto:${to}?subject=${su}&body=${body}`; }, 1000);
+        } else if (isMobile) {
+            window.location.href = `mailto:${to}?subject=${su}&body=${body}`;
+        } else {
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`;
+            window.open(gmailUrl, '_blank');
+        }
+    }
+
+    function downloadSurat() {
+        const content = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>" + document.getElementById("suratContent").innerHTML + "</body></html>";
+        const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
+        const nama = document.getElementById('nama').value || "Shakira";
+        const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
+        saveAs(converted, `Surat Lamaran - ${nama} - ${perusahaan}.docx`);
+    }
+
+    window.onload = function() {
+        tampilkanMotivasi();
+        generateAll();
+    };
+</script>
+
+</body>
+</html>
