@@ -45,6 +45,8 @@
         .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
         .form-group { margin-bottom: 1.5rem; flex: 1; min-width: 250px; }
         label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: #1e293b; }
+        .label-hint { display: block; font-size: 0.8rem; color: #b45309; font-weight: normal; margin-top: 2px; }
+        
         input[type="text"], input[type="email"] { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; }
         input[type="text"]:focus, input[type="email"]:focus { outline: none; border-color: var(--primary); }
         
@@ -65,6 +67,10 @@
         .section-title { font-size: 1.2rem; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); color: #0f172a; }
         .hidden { display: none; }
         .alert { background-color: #fef3c7; border-left: 4px solid var(--warning); padding: 1rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.6; color: #451a03; }
+        
+        .footer-note { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #64748b; border-top: 1px solid var(--border); padding-top: 1rem; }
+        .footer-note a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .footer-note a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -99,8 +105,11 @@
     </div>
 
     <div class="form-group">
-        <label for="subject">Subjek Email</label>
-        <input type="text" id="subject" placeholder="Contoh: Lamaran Pekerjaan - Staff Administrasi - Shakira" oninput="generateAll()">
+        <label for="subject">
+            Subjek Email 
+            <span class="label-hint">⚠️ Perhatian: Pastikan subjek ini sudah sesuai dengan instruksi dari lowongan kerjanya. Boleh diedit manual kok!</span>
+        </label>
+        <input type="text" id="subject" placeholder="Contoh: Staff Administrasi_Shakira Aulia Najma" oninput="tandaiSubjekManual(); generateAll()">
     </div>
 
     <h2 class="section-title">1. Teks Buat di Email</h2>
@@ -125,16 +134,19 @@
     </div>
 
     <div id="suratContent" class="hidden"></div>
-
-    <p style="text-align: center; margin-top: 2rem; font-size: 0.85rem; color: #64748b;">
-    Ingin tahu cara kerja website ini? Baca <a href="https://github.com/muhbhuwana/sha-lamar-kerja" target="_blank" style="color: #2563eb; text-decoration: none;">Dokumentasinya di sini</a>.
-</p>
+    
+    <div class="footer-note">
+        Ingin tahu cara kerja atau kodingan website ini? Baca <a href="https://github.com/username-anda/nama-repository" target="_blank">Dokumentasinya (README) di sini</a>.
+    </div>
 </div>
 
 <script>
     const noHp = "0896-6270-2203";
     const emailAnda = "shakiraaulianajma@gmail.com";
     
+    // Variabel untuk melacak apakah subjek sudah diedit manual oleh Shakira
+    let isSubjekManual = false;
+
     // === FITUR MOTIVASI ACAK ===
     const daftarMotivasi = [
         "Semangat terus ya, Shakira! Setiap lamaran yang kamu kirim adalah satu langkah lebih dekat menuju impianmu.",
@@ -161,11 +173,26 @@
         return date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear();
     }
 
+    // Menandai jika kotak subjek diketik langsung oleh user
+    function tandaiSubjekManual() {
+        isSubjekManual = true;
+    }
+
     function generateAll() {
         const nama = document.getElementById('nama').value || "Shakira Aulia Najma";
         const perusahaan = document.getElementById('perusahaan').value || "{nama perusahaan}";
         const posisi = document.getElementById('posisi').value || "{posisi}";
         const tanggal = getTanggalHariIni();
+
+        // Mengatur Subjek Otomatis (Posisi_Nama) JIKA belum diedit manual
+        if (!isSubjekManual) {
+            const subjekInput = document.getElementById('subject');
+            if (posisi !== "{posisi}" && posisi !== "") {
+                subjekInput.value = `${posisi}_${nama}`;
+            } else {
+                subjekInput.value = ""; // Kosongkan jika posisi belum diisi
+            }
+        }
 
         // 1. Generate Email Body dengan HTML (Tetap Formal untuk HRD)
         const emailBodyHTML = `
@@ -190,7 +217,7 @@
 
         document.getElementById('emailOutput').innerHTML = emailBodyHTML;
 
-        // 2. Generate Surat Lamaran untuk DOCX (Tetap Formal untuk HRD)
+        // 2. Generate Surat Lamaran untuk DOCX
         const suratLetter = `
             <div style="font-family: Arial, sans-serif; font-size: 11pt;">
                 <p>Malang, ${tanggal}</p>
@@ -244,8 +271,30 @@
         const subject = document.getElementById('subject').value || "Lamaran Pekerjaan";
         const bodyText = document.getElementById('emailOutput').innerText;
         
-        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(emailTujuan)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-        window.open(gmailUrl, '_blank');
+        const to = encodeURIComponent(emailTujuan);
+        const su = encodeURIComponent(subject);
+        const body = encodeURIComponent(bodyText);
+
+        // Deteksi Perangkat
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isIOS) {
+            // Mencoba membuka aplikasi Gmail khusus di iOS
+            window.location.href = `googlegmail:///co?to=${to}&subject=${su}&body=${body}`;
+            
+            // Fallback: Jika aplikasi Gmail tidak ada, buka aplikasi email bawaan iOS (Mail) setelah 1 detik
+            setTimeout(() => {
+                window.location.href = `mailto:${to}?subject=${su}&body=${body}`;
+            }, 1000);
+        } else if (isMobile) {
+            // Di HP Android, mailto biasanya langsung memunculkan pilihan aplikasi Email (termasuk Gmail)
+            window.location.href = `mailto:${to}?subject=${su}&body=${body}`;
+        } else {
+            // Di Laptop/PC, buka Gmail versi web seperti biasa
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`;
+            window.open(gmailUrl, '_blank');
+        }
     }
 
     function downloadSurat() {
