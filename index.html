@@ -16,6 +16,7 @@
             --border: #e2e8f0;
             --text: #334155;
             --warning: #f59e0b;
+            --ai: #8b5cf6;
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem; margin: 0; line-height: 1.6; }
@@ -23,38 +24,43 @@
         
         h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; color: #0f172a; }
         
-        /* Styling untuk kotak motivasi */
-        .motivasi-box {
-            background: linear-gradient(135deg, #eff6ff, #dbeafe);
-            border-radius: 8px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid #bfdbfe;
-        }
-        .motivasi-text {
-            color: #1e3a8a;
-            font-size: 1.05rem;
-            font-style: italic;
-            font-weight: 500;
-            margin: 0;
-            line-height: 1.5;
-        }
+        .motivasi-box { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #bfdbfe; }
+        .motivasi-text { color: #1e3a8a; font-size: 1.05rem; font-style: italic; font-weight: 500; margin: 0; line-height: 1.5; }
+
+        /* Styling AI Section */
+        .ai-box { background-color: #f5f3ff; border: 1px dashed #c4b5fd; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
+        .ai-title { color: #5b21b6; font-weight: 600; margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .api-key-group { margin-bottom: 1rem; }
+        .api-key-group label { font-size: 0.8rem; color: #6d28d9; }
+        input[type="password"] { width: 100%; padding: 0.5rem; border: 1px solid #ddd6fe; border-radius: 6px; font-size: 0.9rem; }
+        .file-upload-wrapper { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        input[type="file"] { flex: 1; padding: 0.5rem; border: 1px solid #ddd6fe; border-radius: 6px; background: white; cursor: pointer; }
+        .btn-ai { background-color: var(--ai); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-ai:hover { background-color: #7c3aed; }
+        .btn-ai:disabled { background-color: #c4b5fd; cursor: not-allowed; }
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid white; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Styling Preview Image */
+        .preview-container { display: none; margin-top: 1.5rem; text-align: center; }
+        .preview-container img { max-width: 100%; max-height: 350px; border-radius: 8px; border: 2px dashed #c4b5fd; padding: 4px; background: white; object-fit: contain; }
+        .preview-title { font-size: 0.85rem; color: #5b21b6; font-weight: 600; margin-bottom: 0.5rem; }
 
         .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
         .form-group { margin-bottom: 1.5rem; flex: 1; min-width: 250px; }
         label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: #1e293b; }
         .label-hint { display: block; font-size: 0.8rem; color: #b45309; font-weight: normal; margin-top: 2px; }
         
-        input[type="text"], input[type="email"] { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; }
+        .input-group { display: flex; gap: 0.5rem; align-items: stretch; }
+        input[type="text"], input[type="email"] { flex: 1; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; transition: border-color 0.2s; min-width: 0; }
         input[type="text"]:focus, input[type="email"]:focus { outline: none; border-color: var(--primary); }
         
-        /* Mengubah styling textarea menjadi rich-text box */
+        .btn-paste { background-color: #f1f5f9; border: 1px solid var(--border); border-radius: 6px; padding: 0 1rem; cursor: pointer; transition: background-color 0.2s; font-size: 1.2rem; color: #475569; }
+        .btn-paste:hover { background-color: #e2e8f0; }
+        
         .rich-text-box { width: 100%; min-height: 250px; padding: 1rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; background: #f1f5f9; overflow-y: auto; outline: none; transition: border-color 0.2s; }
         .rich-text-box:focus { border-color: var(--primary); background: #ffffff; }
-        .rich-text-box p { margin-top: 0; margin-bottom: 0.75rem; }
-        .rich-text-box ul { margin-top: 0; margin-bottom: 0.75rem; padding-left: 1.5rem; }
+        .rich-text-box p, .rich-text-box ul { margin-top: 0; margin-bottom: 0.75rem; }
         
         .btn-group { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
         button { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; font-size: 0.9rem; }
@@ -70,7 +76,6 @@
         
         .footer-note { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #64748b; border-top: 1px solid var(--border); padding-top: 1rem; }
         .footer-note a { color: var(--primary); text-decoration: none; font-weight: 600; }
-        .footer-note a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -82,45 +87,90 @@
         <p id="teksMotivasi" class="motivasi-text"></p>
     </div>
 
+    <div class="ai-box">
+        <h3 class="ai-title">🤖 Auto-Isi dari Poster Loker (Gemini AI)</h3>
+        <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0;">Upload screenshot / foto poster loker, AI akan otomatis membaca dan mengisi form di bawah.</p>
+        
+        <div class="api-key-group">
+            <label for="geminiApiKey">Gemini API Key (Tersimpan aman di browser):</label>
+            <input type="password" id="geminiApiKey" placeholder="Masukkan API Key (AIzaSy...) di sini..." onchange="saveApiKey()">
+        </div>
+
+        <div class="file-upload-wrapper">
+            <input type="file" id="posterUpload" accept="image/*" onchange="previewImage()">
+            <button class="btn-ai" id="btnProsesAI" onclick="processPosterWithAI()">
+                <div class="loader" id="aiLoader"></div>
+                <span id="aiBtnText">✨ Ekstrak Data</span>
+            </button>
+        </div>
+        <p id="aiStatus" style="font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; display: none;"></p>
+
+        <div id="previewContainer" class="preview-container">
+            <div class="preview-title">🖼️ Preview Poster:</div>
+            <img id="posterPreview" src="" alt="Preview Poster">
+        </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top: 0;">📝 Data Pribadi</h2>
     <div class="form-row">
         <div class="form-group">
             <label for="nama">Nama Kamu</label>
             <input type="text" id="nama" value="Shakira Aulia Najma" placeholder="Isi namamu di sini..." oninput="generateAll()">
         </div>
         <div class="form-group">
+            <label for="noHp">Nomor HP</label>
+            <input type="text" id="noHp" value="0896-6270-2203" placeholder="Contoh: 0812345678" oninput="generateAll()">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="emailPengirim">Email Kamu</label>
+        <input type="email" id="emailPengirim" value="shakiraaulianajma@gmail.com" placeholder="Contoh: shakira@gmail.com" oninput="generateAll()">
+    </div>
+
+    <h2 class="section-title">🏢 Tujuan Lamaran</h2>
+    <div class="form-row">
+        <div class="form-group">
             <label for="perusahaan">Mau Lamar ke Perusahaan Apa?</label>
-            <input type="text" id="perusahaan" placeholder="Contoh: PT Bangun Negeri" oninput="generateAll()">
+            <div class="input-group">
+                <input type="text" id="perusahaan" placeholder="Contoh: PT Bangun Negeri" oninput="generateAll()">
+                <button class="btn-paste" onclick="pasteFromClipboard('perusahaan')" title="Paste Teks">📋</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="posisi">Posisi Impianmu</label>
+            <div class="input-group">
+                <input type="text" id="posisi" placeholder="Contoh: Staff Administrasi" oninput="generateAll()">
+                <button class="btn-paste" onclick="pasteFromClipboard('posisi')" title="Paste Teks">📋</button>
+            </div>
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-group">
-            <label for="posisi">Posisi Impianmu</label>
-            <input type="text" id="posisi" placeholder="Contoh: Staff Administrasi" oninput="generateAll()">
+            <label for="emailTujuan">Email HRD-nya</label>
+            <div class="input-group">
+                <input type="email" id="emailTujuan" placeholder="Contoh: hrd@perusahaannya.com" oninput="generateAll()">
+                <button class="btn-paste" onclick="pasteFromClipboard('emailTujuan')" title="Paste Teks">📋</button>
+            </div>
         </div>
         <div class="form-group">
-            <label for="emailTujuan">Email HRD-nya</label>
-            <input type="email" id="emailTujuan" placeholder="Contoh: hrd@perusahaannya.com" oninput="generateAll()">
+            <label for="subject">
+                Subjek Email 
+                <span class="label-hint">⚠️ Pastikan sesuai format dari lowongan kerjanya ya.</span>
+            </label>
+            <div class="input-group">
+                <input type="text" id="subject" placeholder="Contoh: Staff Administrasi_Shakira Aulia Najma" oninput="tandaiSubjekManual(); generateAll()">
+            </div>
         </div>
-    </div>
-
-    <div class="form-group">
-        <label for="subject">
-            Subjek Email 
-            <span class="label-hint">⚠️ Perhatian: Pastikan subjek ini sudah sesuai dengan instruksi dari lowongan kerjanya. Boleh diedit manual kok!</span>
-        </label>
-        <input type="text" id="subject" placeholder="Contoh: Staff Administrasi_Shakira Aulia Najma" oninput="tandaiSubjekManual(); generateAll()">
     </div>
 
     <h2 class="section-title">1. Teks Buat di Email</h2>
     <div class="alert">
-        <strong>💡 Tips biar rapi:</strong> Mending kamu klik <strong>"Copy Teks Email"</strong> terus <em>paste</em> sendiri di kotak tulis Gmail ya. Kalau pakai tombol "Buka langsung di Gmail", format tebalnya (bold) suka hilang karena bawaan dari sananya.<br><br>
-        <strong>📎 Super Penting:</strong> Jangan lupa <em>attach</em> (lampirkan) file CV dan dokumen lainnya sebelum dikirim!
+        <strong>💡 Tips biar rapi:</strong> Mending kamu klik <strong>"Copy Teks Email"</strong> terus <em>paste</em> sendiri di kotak tulis Gmail ya. Kalau pakai tombol "Buka langsung di Gmail", format tebalnya (bold) suka hilang karena bawaan dari sananya.
     </div>
     
     <div class="form-group">
         <div id="emailOutput" class="rich-text-box" contenteditable="true"></div>
-        
         <div class="btn-group">
             <button class="btn-primary" onclick="copyToClipboard()">📋 Copy Teks Email</button>
             <button class="btn-gmail" onclick="openGmail()">✉️ Buka langsung di Gmail</button>
@@ -141,13 +191,124 @@
 </div>
 
 <script>
-    const noHp = "0896-6270-2203";
-    const emailAnda = "shakiraaulianajma@gmail.com";
-    
-    // Variabel untuk melacak apakah subjek sudah diedit manual oleh Shakira
     let isSubjekManual = false;
 
-    // === FITUR MOTIVASI ACAK ===
+    // === FITUR AI GEMINI ===
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedKey = localStorage.getItem('geminiApiKey');
+        if (savedKey) document.getElementById('geminiApiKey').value = savedKey;
+    });
+
+    function saveApiKey() {
+        const key = document.getElementById('geminiApiKey').value;
+        localStorage.setItem('geminiApiKey', key);
+    }
+
+    // Fungsi memunculkan gambar begitu dipilih
+    function previewImage() {
+        const fileInput = document.getElementById('posterUpload');
+        const previewContainer = document.getElementById('previewContainer');
+        const posterPreview = document.getElementById('posterPreview');
+        const statusMsg = document.getElementById('aiStatus');
+        
+        statusMsg.style.display = 'none'; // Reset status text
+        
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                posterPreview.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            previewContainer.style.display = 'none';
+            posterPreview.src = "";
+        }
+    }
+
+    async function processPosterWithAI() {
+        const apiKey = document.getElementById('geminiApiKey').value;
+        const fileInput = document.getElementById('posterUpload');
+        const statusMsg = document.getElementById('aiStatus');
+        const btn = document.getElementById('btnProsesAI');
+        const loader = document.getElementById('aiLoader');
+        const btnText = document.getElementById('aiBtnText');
+
+        if (!apiKey) { alert('Tolong masukkan Gemini API Key terlebih dahulu ya!'); return; }
+        if (!fileInput.files || fileInput.files.length === 0) { alert('Pilih file gambar poster loker dulu!'); return; }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onloadend = async function() {
+            const base64data = reader.result.split(',')[1];
+            const mimeType = file.type;
+
+            btn.disabled = true;
+            loader.style.display = 'block';
+            btnText.innerText = 'Memproses...';
+            statusMsg.style.display = 'block';
+            statusMsg.style.color = '#5b21b6';
+            statusMsg.innerText = 'AI sedang membaca poster...';
+
+            try {
+                // Update Prompt: Menggunakan gemini-1.5-flash dan memaksa Title Case (kecuali singkatan)
+                const prompt = `Ekstrak informasi dari gambar poster lowongan kerja ini: 
+1. Nama Perusahaan
+2. Posisi yang ditawarkan (jika banyak, ambil yang paling utama)
+3. Email HRD / alamat pengiriman lamaran. 
+
+ATURAN FORMATTING PENTING:
+- Ubah penulisan nama perusahaan dan posisi menjadi Title Case (hanya huruf pertama setiap kata yang besar). 
+- Contoh: "PT TOKO JAYA" harus ditulis menjadi "PT Toko Jaya". "STAFF ADMINISTRASI" menjadi "Staff Administrasi".
+- Pengecualian: Singkatan bentuk badan usaha atau istilah umum (seperti PT, CV, Tbk, IT, HRD, UI/UX) HARUS tetap huruf kapital semua.
+
+Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {"perusahaan": "nama", "posisi": "posisi", "email": "email@domain.com"}. Jangan tambahkan format markdown maupun teks pengantar apapun.`;
+                
+                // PANGGIL MODEL 1.5-FLASH
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inline_data: { mime_type: mimeType, data: base64data } }
+                            ]
+                        }]
+                    })
+                });
+
+                if (!response.ok) throw new Error('Gagal menghubungi API. Cek API Key Anda.');
+
+                const data = await response.json();
+                let rawText = data.candidates[0].content.parts[0].text;
+                
+                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const extractedData = JSON.parse(rawText);
+
+                if (extractedData.perusahaan) document.getElementById('perusahaan').value = extractedData.perusahaan;
+                if (extractedData.posisi) document.getElementById('posisi').value = extractedData.posisi;
+                if (extractedData.email) document.getElementById('emailTujuan').value = extractedData.email;
+
+                generateAll(); 
+                
+                statusMsg.style.color = '#10b981';
+                statusMsg.innerText = '✅ Berhasil! Form sudah diisi (silakan kroscek dengan gambar di atas).';
+            } catch (error) {
+                console.error(error);
+                statusMsg.style.color = '#ef4444';
+                statusMsg.innerText = '❌ Gagal membaca gambar. Pastikan gambar jelas atau API Key benar.';
+            } finally {
+                btn.disabled = false;
+                loader.style.display = 'none';
+                btnText.innerText = '✨ Ekstrak Data';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+    // ========================
+
     const daftarMotivasi = [
         "Semangat terus ya, Shakira! Setiap lamaran yang kamu kirim adalah satu langkah lebih dekat menuju impianmu.",
         "Shakira Aulia Najma, kamu pasti bisa! Percaya pada kemampuanmu, usaha tidak akan mengkhianati hasil.",
@@ -165,36 +326,38 @@
     }
 
     function getTanggalHariIni() {
-        const months = [
-            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-        ];
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const date = new Date();
         return date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear();
     }
 
-    // Menandai jika kotak subjek diketik langsung oleh user
-    function tandaiSubjekManual() {
-        isSubjekManual = true;
+    function tandaiSubjekManual() { isSubjekManual = true; }
+
+    async function pasteFromClipboard(elementId) {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById(elementId).value = text;
+            generateAll(); 
+        } catch (err) {
+            alert("Oops! Browser-mu nggak kasih izin paste otomatis. Pastikan kamu kasih izin clipboard, atau paste manual aja.");
+        }
     }
 
     function generateAll() {
+        // MENGAMBIL DATA DARI INPUT (Bukan lagi hardcode)
         const nama = document.getElementById('nama').value || "Shakira Aulia Najma";
+        const noHp = document.getElementById('noHp').value || "0896-6270-2203";
+        const emailAnda = document.getElementById('emailPengirim').value || "shakiraaulianajma@gmail.com";
+        
         const perusahaan = document.getElementById('perusahaan').value || "{nama perusahaan}";
         const posisi = document.getElementById('posisi').value || "{posisi}";
         const tanggal = getTanggalHariIni();
 
-        // Mengatur Subjek Otomatis (Posisi_Nama) JIKA belum diedit manual
         if (!isSubjekManual) {
             const subjekInput = document.getElementById('subject');
-            if (posisi !== "{posisi}" && posisi !== "") {
-                subjekInput.value = `${posisi}_${nama}`;
-            } else {
-                subjekInput.value = ""; // Kosongkan jika posisi belum diisi
-            }
+            subjekInput.value = (posisi !== "{posisi}" && posisi !== "") ? `${posisi}_${nama}` : "";
         }
 
-        // 1. Generate Email Body dengan HTML (Tetap Formal untuk HRD)
         const emailBodyHTML = `
             <p>Yth. Tim Rekrutmen <strong>${perusahaan}</strong>,</p>
             <p>Perkenalkan, nama saya <strong>${nama}</strong>. Melalui email ini, saya bermaksud mengajukan lamaran pekerjaan untuk posisi <strong>${posisi}</strong> di <strong>${perusahaan}</strong>.</p>
@@ -217,15 +380,11 @@
 
         document.getElementById('emailOutput').innerHTML = emailBodyHTML;
 
-        // 2. Generate Surat Lamaran untuk DOCX
         const suratLetter = `
             <div style="font-family: Arial, sans-serif; font-size: 11pt;">
-                <p>Malang, ${tanggal}</p>
-                <br>
-                <p>Perihal: Lamaran Pekerjaan <strong>${posisi}</strong></p>
-                <br>
-                <p>Yth. Bapak/Ibu Human Resources Department<br><strong>${perusahaan}</strong><br>di Tempat</p>
-                <br>
+                <p>Malang, ${tanggal}</p><br>
+                <p>Perihal: Lamaran Pekerjaan <strong>${posisi}</strong></p><br>
+                <p>Yth. Bapak/Ibu Human Resources Department<br><strong>${perusahaan}</strong><br>di Tempat</p><br>
                 <p>Dengan hormat,</p>
                 <p>Melalui surat ini, saya bermaksud menyampaikan ketertarikan saya untuk melamar posisi <strong>${posisi}</strong> di <strong>${perusahaan}</strong> sebagaimana informasi yang saya dapatkan.</p>
                 <p>Dengan pengalaman lebih dari 4 tahun di bidang administrasi, koordinasi stakeholder, dan latar belakang pendidikan Akuntansi, saya yakin dapat memberikan kontribusi nyata bagi perusahaan Anda. Keahlian akuntansi dan manajemen administrasi saya siap diaplikasikan untuk mendukung stabilitas keuangan dan operasional harian di <strong>${perusahaan}</strong>.</p>
@@ -237,8 +396,7 @@
                     <li><strong>Komunikasi Profesional:</strong> Berpengalaman dalam memberikan layanan high-touch kepada klien dan mitra profesional.</li>
                 </ol>
                 <p>Saya adalah pribadi yang adaptif dan mampu bekerja di bawah tekanan dalam lingkungan yang cepat. Besar harapan saya untuk dapat mendiskusikan kualifikasi saya lebih lanjut dalam sesi wawancara.</p>
-                <p>Hormat saya,</p>
-                <br><br>
+                <p>Hormat saya,</p><br><br>
                 <p><strong>${nama}</strong></p>
             </div>
         `;
@@ -249,20 +407,15 @@
         const emailDiv = document.getElementById("emailOutput");
         const selection = window.getSelection();
         const range = document.createRange();
-        
         range.selectNodeContents(emailDiv);
         selection.removeAllRanges();
         selection.addRange(range);
-        
         try {
             document.execCommand('copy');
             const notif = document.getElementById("copyNotif");
             notif.classList.remove("hidden");
             setTimeout(() => { notif.classList.add("hidden"); }, 3000);
-        } catch (err) {
-            alert('Gagal menyalin teks. Silakan blok teks manual dan tekan Ctrl+C.');
-        }
-        
+        } catch (err) { alert('Gagal menyalin teks. Silakan blok teks manual dan tekan Ctrl+C.'); }
         selection.removeAllRanges();
     }
 
@@ -270,28 +423,19 @@
         const emailTujuan = document.getElementById('emailTujuan').value;
         const subject = document.getElementById('subject').value || "Lamaran Pekerjaan";
         const bodyText = document.getElementById('emailOutput').innerText;
-        
         const to = encodeURIComponent(emailTujuan);
         const su = encodeURIComponent(subject);
         const body = encodeURIComponent(bodyText);
 
-        // Deteksi Perangkat
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         if (isIOS) {
-            // Mencoba membuka aplikasi Gmail khusus di iOS
             window.location.href = `googlegmail:///co?to=${to}&subject=${su}&body=${body}`;
-            
-            // Fallback: Jika aplikasi Gmail tidak ada, buka aplikasi email bawaan iOS (Mail) setelah 1 detik
-            setTimeout(() => {
-                window.location.href = `mailto:${to}?subject=${su}&body=${body}`;
-            }, 1000);
+            setTimeout(() => { window.location.href = `mailto:${to}?subject=${su}&body=${body}`; }, 1000);
         } else if (isMobile) {
-            // Di HP Android, mailto biasanya langsung memunculkan pilihan aplikasi Email (termasuk Gmail)
             window.location.href = `mailto:${to}?subject=${su}&body=${body}`;
         } else {
-            // Di Laptop/PC, buka Gmail versi web seperti biasa
             const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`;
             window.open(gmailUrl, '_blank');
         }
@@ -300,12 +444,9 @@
     function downloadSurat() {
         const content = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>" + document.getElementById("suratContent").innerHTML + "</body></html>";
         const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
-        
         const nama = document.getElementById('nama').value || "Shakira";
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
-        const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.docx`;
-        
-        saveAs(converted, fileName);
+        saveAs(converted, `Surat Lamaran - ${nama} - ${perusahaan}.docx`);
     }
 
     window.onload = function() {
