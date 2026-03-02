@@ -490,12 +490,46 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         }
     }
 
-    function downloadSurat() {
-        const content = "<!DOCTYPE html><html><head><meta charset='utf-8'></head><body>" + document.getElementById("suratContent").innerHTML + "</body></html>";
-        const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
+function downloadSurat() {
+        // Menambahkan tag XML standar Microsoft Word agar terbaca rapi di HP
+        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Surat Lamaran</title></head><body>";
+        const footer = "</body></html>";
+        const content = header + document.getElementById("suratContent").innerHTML + footer;
+        
         const nama = document.getElementById('nama').value || "Shakira";
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
-        saveAs(converted, `Surat Lamaran - ${nama} - ${perusahaan}.docx`);
+        const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.docx`;
+
+        try {
+            // Mengubah HTML menjadi Blob (File Memori)
+            const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
+            
+            // Deteksi apakah pengguna menggunakan HP (khususnya iOS/Safari)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isIOS || isMobile) {
+                // Trik khusus HP: Ubah file ke Base64 agar dipaksa download, bukan buka tab baru
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const link = document.createElement('a');
+                    link.href = e.target.result;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                    }, 100);
+                };
+                reader.readAsDataURL(converted);
+            } else {
+                // Download normal untuk Laptop/PC
+                saveAs(converted, fileName);
+            }
+        } catch (error) {
+            alert("Maaf ya, ada kendala saat mendownload file di HP ini. Coba buka lewat browser Chrome atau Safari versi terbaru.");
+            console.error(error);
+        }
     }
 
     window.onload = function() {
@@ -506,4 +540,3 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
-
