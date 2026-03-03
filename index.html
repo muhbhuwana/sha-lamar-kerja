@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asisten Lamaran Kerja Shakira</title>
+    
     <style>
         :root {
             --primary: #2563eb;
@@ -66,35 +67,43 @@
         .alert { background-color: #fef3c7; border-left: 4px solid var(--warning); padding: 1rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.6; color: #451a03; }
         .footer-note { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #64748b; border-top: 1px solid var(--border); padding-top: 1rem; }
 
-        /* Tampilan Preview Layar */
-        .paper-preview-wrapper { width: 100%; overflow-x: auto; background: #cbd5e1; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
-        .paper-a4 {
-            width: 794px; background: white; padding: 60px 75px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin: 0 auto;
-            font-family: 'Times New Roman', Times, serif; font-size: 15px; line-height: 1.4; color: black; text-align: justify;
+        /* SEMBUNYIKAN KERTAS DARI LAYAR WEB */
+        @media screen {
+            #suratContent { display: none; }
         }
-        .paper-a4 p { margin: 0 0 8px 0; }
-        .paper-a4 ol { margin: 5px 0 12px 0; padding-left: 24px; }
-        .paper-a4 li { margin-bottom: 5px; }
 
-        /* KUNCI UTAMA: PENGATURAN MESIN PRINT OS/BROWSER NATIVE */
+        /* PENGATURAN MESIN PRINT NATIVE */
         @media print {
-            /* Sembunyikan semua UI Web (Inputan, Tombol, Background) */
             body * { visibility: hidden; }
             body { background: white; margin: 0; padding: 0; }
-            .container { box-shadow: none; margin: 0; padding: 0; }
+            .container { box-shadow: none; margin: 0; padding: 0; border: none; }
             
-            /* Tampilkan HANYA kertas surat dan isinya */
             #suratContent, #suratContent * { visibility: visible; }
             
-            /* Tarik posisi kertas ke pojok kiri atas saat nge-print */
             #suratContent {
-                position: absolute; left: 0; top: 0; width: 100%;
-                padding: 0; margin: 0; box-shadow: none;
-                font-size: 12pt; /* Ukuran standar dokumen resmi */
+                display: block;
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%;
+                /* Margin kertas diatur lewat padding agar tidak diganggu header/footer OS */
+                padding: 25mm 20mm; 
+                box-sizing: border-box;
+                font-size: 12pt;
+                font-family: 'Times New Roman', Times, serif;
+                line-height: 1.4;
+                color: black;
+                text-align: justify;
             }
             
-            /* Minta printer browser bikin margin otomatis berstandar HRD */
-            @page { size: A4 portrait; margin: 25mm 20mm; }
+            #suratContent p { margin: 0 0 8px 0; }
+            #suratContent ol { margin: 5px 0 12px 0; padding-left: 24px; }
+            #suratContent li { margin-bottom: 5px; }
+
+            @page { 
+                size: A4 portrait; 
+                margin: 0; /* MENGHILANGKAN HEADER & FOOTER BAWAAN (TGL/URL/PAGE NUM) */
+            }
         }
     </style>
 </head>
@@ -148,21 +157,15 @@
         </div>
     </div>
 
-    <h2 class="section-title no-print">2. Preview & Download PDF</h2>
-    <div class="alert no-print" style="background-color: #e0e7ff; border-color: #6366f1; color: #3730a3;">
-        <strong>📄 Format Super Aman & ATS Friendly!</strong> Kertas ini dibuat murni menggunakan teks asli (bukan gambar), sehingga dijamin bisa dibaca oleh sistem robotik HRD. Klik tombol Cetak di bawah dan pilih opsi <b>"Save as PDF"</b> di HP/Laptopmu.
-    </div>
-
-    <div class="paper-preview-wrapper no-print">
-        <div id="suratContent" class="paper-a4"></div>
-    </div>
-
+    <h2 class="section-title no-print">2. Download / Cetak PDF</h2>
     <div class="btn-group no-print">
         <button class="btn-secondary" onclick="downloadSurat()">🖨️ Cetak / Save as PDF</button>
     </div>
     
     <div class="footer-note no-print">Dibuat dengan semangat.</div>
 </div>
+
+<div id="suratContent"></div>
 
 <div id="imageModal" class="modal no-print" onclick="closeModal(event)">
     <span class="close-modal">&times;</span><img class="modal-content" id="modalImg">
@@ -286,7 +289,6 @@
         window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`, '_blank');
     }
 
-    // FUNGSI PDF NATIVE 100% BEBAS BUG & BISA DIBACA ROBOT HRD
     function downloadSurat() {
         generateAll(); 
 
@@ -294,18 +296,25 @@
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}`;
         
-        // Simpan Judul Website Asli
+        // Simpan Judul Web
         const originalTitle = document.title;
-        
-        // Ubah Judul Web sementara agar saat di "Save as PDF", namanya rapi sesuai perusahaan
         document.title = fileName;
         
-        // Panggil Fitur Print Bawaan OS (Di iOS Safari akan memunculkan menu Share/Print Native)
+        // DETEKSI iOS & INJECT SCALING 85%
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const surat = document.getElementById('suratContent');
+        
+        if (isIOS) {
+            surat.style.zoom = "85%";
+        }
+
+        // Buka dialog Print bawaan OS
         window.print();
         
-        // Kembalikan Judul Website 
+        // Kembalikan Pengaturan Semula
         setTimeout(() => {
             document.title = originalTitle;
+            if (isIOS) surat.style.zoom = "100%"; 
         }, 1000);
     }
 
