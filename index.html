@@ -500,7 +500,6 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         // 2. Ambil teks lamaran yang sudah PASTI terisi
         const isiSurat = document.getElementById("suratContent").innerHTML;
 
-        // Jika entah bagaimana masih kosong, hentikan proses agar tidak download file 3KB
         if (!isiSurat || isiSurat.trim() === "") {
             alert("Sistem mendeteksi surat kosong. Coba ketik ulang salah satu inputan.");
             return;
@@ -514,8 +513,9 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         const printArea = document.createElement('div');
         printArea.id = "area-cetak-pdf";
         printArea.style.width = '210mm'; 
-        printArea.style.minHeight = '297mm'; 
+        // HAPUS minHeight agar tinggi menyesuaikan konten secara natural
         printArea.style.padding = '25mm'; 
+        printArea.style.boxSizing = 'border-box'; // KUNCI UTAMA: Agar padding tidak menambah ukuran A4
         printArea.style.backgroundColor = '#ffffff';
         printArea.style.color = '#000000';
         printArea.style.fontFamily = "'Times New Roman', Times, serif";
@@ -523,7 +523,9 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         printArea.style.lineHeight = '1.5';
         printArea.style.textAlign = 'justify';
         printArea.style.margin = '0 auto'; 
-        printArea.innerHTML = isiSurat;
+        
+        // Hapus margin bawah berlebih dari elemen terakhir agar tidak memicu halaman 2
+        printArea.innerHTML = isiSurat + '<div style="clear:both; margin:0; padding:0; height:0;"></div>';
 
         // 5. Masukkan ke dalam layar
         document.body.appendChild(printArea);
@@ -540,13 +542,13 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 7. Ubah tombol jadi status loading (akan terlihat sesaat sebelum layout disembunyikan)
+        // 7. Ubah tombol jadi status loading 
         const btnDownload = document.querySelector('.btn-secondary');
         const originalText = btnDownload.innerHTML;
         btnDownload.innerHTML = "⏳ Sedang mencetak PDF...";
         btnDownload.disabled = true;
 
-        // 8. Tunggu sedikit agar browser selesai merender DOM baru, lalu eksekusi!
+        // 8. Eksekusi
         setTimeout(() => {
             html2pdf().set(opt).from(printArea).save().then(() => {
                 // SETELAH SUKSES: Kembalikan tampilan website seperti semula
@@ -557,7 +559,6 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
             }).catch(err => {
                 console.error("PDF Error:", err);
                 alert("Oops! Gagal membuat PDF. Coba ulangi lagi.");
-                // JIKA ERROR: Tetap kembalikan tampilan web
                 document.body.removeChild(printArea);
                 mainContainer.style.display = 'block';
                 btnDownload.innerHTML = originalText;
@@ -574,6 +575,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
 
 
