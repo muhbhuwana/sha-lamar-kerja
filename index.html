@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asisten Lamaran Kerja Shakira</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <style>
         :root {
             --primary: #2563eb;
@@ -23,11 +21,9 @@
         
         h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; color: #0f172a; }
         
-        /* Styling Motivasi */
         .motivasi-box { background: linear-gradient(135deg, #fdf2f8, #fce7f3); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #fbcfe8; }
         .motivasi-text { color: #be185d; font-size: 1.05rem; font-style: italic; font-weight: 500; margin: 0; line-height: 1.5; }
 
-        /* Styling AI Section */
         .ai-box { background-color: #f5f3ff; border: 1px dashed #c4b5fd; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
         .ai-title { color: #5b21b6; font-weight: 600; margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .api-key-group { margin-bottom: 1rem; }
@@ -41,7 +37,6 @@
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid white; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Styling Preview Image & Modal Zoom */
         .preview-container { display: none; margin-top: 1.5rem; text-align: center; }
         .preview-container img { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px dashed #c4b5fd; padding: 4px; background: white; object-fit: contain; cursor: zoom-in; transition: transform 0.2s; }
         .preview-container img:hover { transform: scale(1.02); }
@@ -50,8 +45,7 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(4px); overflow: hidden; }
         .modal-content { margin: auto; display: block; max-width: 95%; max-height: 90vh; position: relative; top: 50%; transform: translateY(-50%); border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); object-fit: contain; }
         .close-modal { position: absolute; top: 20px; right: 30px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.2s; z-index: 1001; }
-        .close-modal:hover { color: #f43f5e; }
-
+        
         .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
         .form-group { margin-bottom: 1.5rem; flex: 1; min-width: 250px; }
         label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: #1e293b; }
@@ -72,44 +66,45 @@
         .alert { background-color: #fef3c7; border-left: 4px solid var(--warning); padding: 1rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.6; color: #451a03; }
         .footer-note { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #64748b; border-top: 1px solid var(--border); padding-top: 1rem; }
 
-        /* KUNCI UTAMA: Tampilan Kertas A4 Nyata untuk Layar & Mesin PDF */
-        .paper-preview-wrapper {
-            width: 100%;
-            overflow-x: auto; /* Agar HP bisa scroll ke kanan untuk baca */
-            background: #cbd5e1;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
-        }
+        /* Tampilan Preview Layar */
+        .paper-preview-wrapper { width: 100%; overflow-x: auto; background: #cbd5e1; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
         .paper-a4 {
-            width: 794px; /* Kunci ukuran Lebar A4 Mutlak */
-            background: white;
-            padding: 60px 75px; /* Margin kertas */
-            box-sizing: border-box;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            margin: 0 auto;
-            
-            /* Pengaturan Font Resmi HRD */
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 15px; 
-            line-height: 1.4;
-            color: black;
-            text-align: justify;
+            width: 794px; background: white; padding: 60px 75px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin: 0 auto;
+            font-family: 'Times New Roman', Times, serif; font-size: 15px; line-height: 1.4; color: black; text-align: justify;
         }
-        /* Merapikan jarak antar paragraf agar muat 1 lembar */
         .paper-a4 p { margin: 0 0 8px 0; }
         .paper-a4 ol { margin: 5px 0 12px 0; padding-left: 24px; }
         .paper-a4 li { margin-bottom: 5px; }
+
+        /* KUNCI UTAMA: PENGATURAN MESIN PRINT OS/BROWSER NATIVE */
+        @media print {
+            /* Sembunyikan semua UI Web (Inputan, Tombol, Background) */
+            body * { visibility: hidden; }
+            body { background: white; margin: 0; padding: 0; }
+            .container { box-shadow: none; margin: 0; padding: 0; }
+            
+            /* Tampilkan HANYA kertas surat dan isinya */
+            #suratContent, #suratContent * { visibility: visible; }
+            
+            /* Tarik posisi kertas ke pojok kiri atas saat nge-print */
+            #suratContent {
+                position: absolute; left: 0; top: 0; width: 100%;
+                padding: 0; margin: 0; box-shadow: none;
+                font-size: 12pt; /* Ukuran standar dokumen resmi */
+            }
+            
+            /* Minta printer browser bikin margin otomatis berstandar HRD */
+            @page { size: A4 portrait; margin: 25mm 20mm; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>✨ Asisten Lamaran Kerja Shakira ✨</h1>
-    <div class="motivasi-box"><p id="teksMotivasi" class="motivasi-text"></p></div>
+    <h1 class="no-print">✨ Asisten Lamaran Kerja Shakira ✨</h1>
+    <div class="motivasi-box no-print"><p id="teksMotivasi" class="motivasi-text"></p></div>
 
-    <div class="ai-box">
+    <div class="ai-box no-print">
         <h3 class="ai-title">🤖 Auto-Isi dari Poster Loker (Gemini AI)</h3>
         <div class="api-key-group">
             <label for="geminiApiKey">Gemini API Key:</label>
@@ -129,24 +124,23 @@
         </div>
     </div>
 
-    <h2 class="section-title" style="margin-top: 0;">📝 Data Pribadi</h2>
-    <div class="form-row">
+    <h2 class="section-title no-print" style="margin-top: 0;">📝 Data Pribadi</h2>
+    <div class="form-row no-print">
         <div class="form-group"><label>Nama Kamu</label><input type="text" id="nama" value="Shakira Aulia Najma" oninput="generateAll()"></div>
         <div class="form-group"><label>Nomor HP</label><input type="text" id="noHp" value="0896-6270-2203" oninput="generateAll()"></div>
     </div>
-    <div class="form-group"><label>Email Kamu</label><input type="email" id="emailPengirim" value="shakiraaulianajma@gmail.com" oninput="generateAll()"></div>
+    <div class="form-group no-print"><label>Email Kamu</label><input type="email" id="emailPengirim" value="shakiraaulianajma@gmail.com" oninput="generateAll()"></div>
 
-    <h2 class="section-title">🏢 Tujuan Lamaran</h2>
-    <div class="form-row">
+    <h2 class="section-title no-print">🏢 Tujuan Lamaran</h2>
+    <div class="form-row no-print">
         <div class="form-group"><label>Mau Lamar ke Perusahaan Apa?</label><div class="input-group"><input type="text" id="perusahaan" oninput="generateAll()"><button class="btn-paste" onclick="pasteFromClipboard('perusahaan')">📋</button></div></div>
         <div class="form-group"><label>Posisi Impianmu</label><div class="input-group"><input type="text" id="posisi" oninput="generateAll()"><button class="btn-paste" onclick="pasteFromClipboard('posisi')">📋</button></div></div>
     </div>
-    <div class="form-group"><label>Email HRD-nya</label><div class="input-group"><input type="email" id="emailTujuan" oninput="generateAll()"><button class="btn-paste" onclick="pasteFromClipboard('emailTujuan')">📋</button></div></div>
-    <div class="form-group"><label>Subjek Email</label><input type="text" id="subject" oninput="tandaiSubjekManual(); generateAll()"></div>
+    <div class="form-group no-print"><label>Email HRD-nya</label><div class="input-group"><input type="email" id="emailTujuan" oninput="generateAll()"><button class="btn-paste" onclick="pasteFromClipboard('emailTujuan')">📋</button></div></div>
+    <div class="form-group no-print"><label>Subjek Email</label><input type="text" id="subject" oninput="tandaiSubjekManual(); generateAll()"></div>
 
-    <h2 class="section-title">1. Teks Buat di Email</h2>
-    <div class="alert"><strong>💡 Tips:</strong> Klik <strong>"Copy Teks Email"</strong> lalu paste sendiri di Gmail agar huruf tebalnya (bold) tidak hilang.</div>
-    <div class="form-group">
+    <h2 class="section-title no-print">1. Teks Buat di Email</h2>
+    <div class="form-group no-print">
         <div id="emailOutput" class="rich-text-box" contenteditable="true"></div>
         <div class="btn-group">
             <button id="btnCopyEmail" class="btn-primary" onclick="copyToClipboard()">📋 Copy Teks Email</button>
@@ -154,31 +148,29 @@
         </div>
     </div>
 
-    <h2 class="section-title">2. Preview & Download PDF</h2>
-    <div class="alert" style="background-color: #e0e7ff; border-color: #6366f1; color: #3730a3;">
-        <strong>📄 Kertas Terlihat Nyata!</strong> Di HP, kamu bisa menggeser area kertas di bawah ini ke kanan/kiri untuk mengecek suratnya. Saat didownload, ukurannya dijamin pas 1 lembar A4.
+    <h2 class="section-title no-print">2. Preview & Download PDF</h2>
+    <div class="alert no-print" style="background-color: #e0e7ff; border-color: #6366f1; color: #3730a3;">
+        <strong>📄 Format Super Aman & ATS Friendly!</strong> Kertas ini dibuat murni menggunakan teks asli (bukan gambar), sehingga dijamin bisa dibaca oleh sistem robotik HRD. Klik tombol Cetak di bawah dan pilih opsi <b>"Save as PDF"</b> di HP/Laptopmu.
     </div>
 
-    <div class="paper-preview-wrapper">
+    <div class="paper-preview-wrapper no-print">
         <div id="suratContent" class="paper-a4"></div>
     </div>
 
-    <div class="btn-group">
-        <button id="btnDownloadPDF" class="btn-secondary" onclick="downloadSurat()">📥 Download PDF Sekarang</button>
+    <div class="btn-group no-print">
+        <button class="btn-secondary" onclick="downloadSurat()">🖨️ Cetak / Save as PDF</button>
     </div>
     
-    <div class="footer-note">Dibuat dengan semangat.</div>
+    <div class="footer-note no-print">Dibuat dengan semangat.</div>
 </div>
 
-<div id="imageModal" class="modal" onclick="closeModal(event)">
+<div id="imageModal" class="modal no-print" onclick="closeModal(event)">
     <span class="close-modal">&times;</span><img class="modal-content" id="modalImg">
 </div>
 
 <script>
     let isSubjekManual = false;
-    window.addEventListener('DOMContentLoaded', () => {
-        if(localStorage.getItem('geminiApiKey')) document.getElementById('geminiApiKey').value = localStorage.getItem('geminiApiKey');
-    });
+    window.addEventListener('DOMContentLoaded', () => { if(localStorage.getItem('geminiApiKey')) document.getElementById('geminiApiKey').value = localStorage.getItem('geminiApiKey'); });
     function saveApiKey() { localStorage.setItem('geminiApiKey', document.getElementById('geminiApiKey').value); }
     function openModal() { document.getElementById("imageModal").style.display = "block"; document.getElementById("modalImg").src = document.getElementById("posterPreview").src; document.body.style.overflow = "hidden"; }
     function closeModal(e) { if(e.target.id === "imageModal" || e.target.classList.contains("close-modal")) { document.getElementById("imageModal").style.display = "none"; document.body.style.overflow = "auto"; } }
@@ -248,7 +240,6 @@
 
         if (!isSubjekManual) document.getElementById('subject').value = pos !== "{posisi}" ? `${pos}_${nama}` : "";
 
-        // Isi Email HTML
         document.getElementById('emailOutput').innerHTML = `
             <p>Yth. Tim Rekrutmen <strong>${perus}</strong>,</p>
             <p>Perkenalkan, nama saya <strong>${nama}</strong>. Melalui email ini, saya bermaksud mengajukan lamaran pekerjaan untuk posisi <strong>${pos}</strong> di <strong>${perus}</strong>.</p>
@@ -261,7 +252,6 @@
             <p>Hormat saya,</p><p><strong>${nama}</strong><br>No. HP: ${noHp}<br>Email: ${email}</p>
         `;
 
-        // Isi Kertas PDF (Ditempel langsung ke layar preview)
         document.getElementById('suratContent').innerHTML = `
             <p>Malang, ${getTanggal()}</p><br>
             <p>Perihal: Lamaran Pekerjaan <strong>${pos}</strong></p><br>
@@ -288,6 +278,7 @@
         const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
         try { document.execCommand('copy'); const btn = document.getElementById("btnCopyEmail"); const old = btn.innerHTML; btn.innerHTML = "✅ Berhasil sayang!"; btn.style.background = "#10b981"; setTimeout(()=> { btn.innerHTML = old; btn.style.background = ""; }, 3000); } catch(e){} sel.removeAllRanges();
     }
+    
     function openGmail() {
         const to = encodeURIComponent(document.getElementById('emailTujuan').value);
         const su = encodeURIComponent(document.getElementById('subject').value);
@@ -295,41 +286,27 @@
         window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`, '_blank');
     }
 
-    // FUNGSI PDF FINAL YANG 100% PASTI JALAN
+    // FUNGSI PDF NATIVE 100% BEBAS BUG & BISA DIBACA ROBOT HRD
     function downloadSurat() {
-        generateAll(); // Pastikan update terbaru
+        generateAll(); 
 
         const nama = document.getElementById('nama').value || "Shakira";
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
-        const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.pdf`;
-
-        // Ambil elemen Kertas Nyata yang tampil di layar
-        const printElement = document.getElementById("suratContent");
-
-        // Konfigurasi sederhana tanpa tipu-tipu
-        const opt = {
-            margin:       0, // Tidak perlu margin karena kertas div sudah pakai padding
-            filename:     fileName,
-            image:        { type: 'jpeg', quality: 1 },
-            html2canvas:  { scale: 2, useCORS: true }, // Biarkan otomatis, tanpa windowWidth paksaan
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        const btn = document.getElementById('btnDownloadPDF');
-        const oldText = btn.innerHTML;
-        btn.innerHTML = "⏳ Sedang mendownload...";
-        btn.disabled = true;
-
-        // Eksekusi foto langsung elemen yang terlihat!
-        html2pdf().set(opt).from(printElement).save().then(() => {
-            btn.innerHTML = oldText;
-            btn.disabled = false;
-        }).catch(err => {
-            console.error(err);
-            alert("Oops! Ada kendala. Coba reload halamannya ya.");
-            btn.innerHTML = oldText;
-            btn.disabled = false;
-        });
+        const fileName = `Surat Lamaran - ${nama} - ${perusahaan}`;
+        
+        // Simpan Judul Website Asli
+        const originalTitle = document.title;
+        
+        // Ubah Judul Web sementara agar saat di "Save as PDF", namanya rapi sesuai perusahaan
+        document.title = fileName;
+        
+        // Panggil Fitur Print Bawaan OS (Di iOS Safari akan memunculkan menu Share/Print Native)
+        window.print();
+        
+        // Kembalikan Judul Website 
+        setTimeout(() => {
+            document.title = originalTitle;
+        }, 1000);
     }
 
     window.onload = function() { tampilkanMotivasi(); generateAll(); };
