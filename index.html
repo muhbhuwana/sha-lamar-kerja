@@ -302,6 +302,8 @@
         
         // Simpan Judul Web
         const originalTitle = document.title;
+        
+        // Ubah Judul Web Sekarang
         document.title = fileName;
         
         // DETEKSI iOS & INJECT SCALING 85%
@@ -312,14 +314,18 @@
             surat.style.zoom = "85%";
         }
 
-        // Buka dialog Print bawaan OS
-        window.print();
-        
-        // Kembalikan Pengaturan Semula
+        // KUNCI: Beri jeda 300ms agar browser sempat me-refresh DOM Title 
+        // sebelum OS mengunci layar untuk membuka dialog Print.
         setTimeout(() => {
-            document.title = originalTitle;
-            if (isIOS) surat.style.zoom = "100%"; 
-        }, 1000);
+            window.print();
+            
+            // Kembalikan Pengaturan Semula (diberi waktu lebih lama agar aman)
+            setTimeout(() => {
+                document.title = originalTitle;
+                if (isIOS) surat.style.zoom = "100%"; 
+            }, 2000); 
+            
+        }, 300);
     }
 
     window.onload = function() { tampilkanMotivasi(); generateAll(); };
@@ -327,3 +333,4 @@
 
 </body>
 </html>
+
