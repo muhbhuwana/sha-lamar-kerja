@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asisten Lamaran Kerja Shakira</title>
-    <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
@@ -183,9 +182,9 @@
         </div>
     </div>
 
-    <h2 class="section-title">2. File Surat Lamaran (Word)</h2>
+    <h2 class="section-title">2. File Surat Lamaran (PDF)</h2>
     <div class="btn-group">
-        <button class="btn-secondary" onclick="downloadSurat()">📥 Download Surat Lamaran (.docx)</button>
+        <button class="btn-secondary" onclick="downloadSurat()">📥 Download Surat Lamaran (.pdf)</button>
     </div>
 
     <div id="suratContent" style="display: none;"></div>
@@ -490,26 +489,33 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         }
     }
 
-    // PEMBARUAN FUNGSI DOWNLOAD: Memaksa file disimpan menggunakan tag 'a' langsung tanpa memori buffer FileSaverJS di iOS.
     function downloadSurat() {
-        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Surat Lamaran</title></head><body>";
-        const footer = "</body></html>";
-        const content = header + document.getElementById("suratContent").innerHTML + footer;
-        
         const nama = document.getElementById('nama').value || "Shakira";
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
-        const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.docx`;
+        const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.pdf`;
 
+        // Mengambil isi surat dan membungkusnya dengan div agar formatnya rapi saat di-PDF-kan
+        const element = document.createElement('div');
+        element.innerHTML = `
+            <div style="padding: 40px; font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #000; line-height: 1.5; text-align: justify;">
+                ${document.getElementById("suratContent").innerHTML}
+            </div>
+        `;
+
+        // Pengaturan kertas PDF (A4, margin rapi)
+        const opt = {
+            margin:       0.5,
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Mulai proses pembuatan PDF dan otomatis download
         try {
-            // Konversi HTML ke Blob (.docx)
-            const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
-            
-            // MAGIC TRICK: Memanfaatkan FileSaver.js langsung untuk cross-platform (iOS, Android, Windows)
-            // Ini akan memaksa trigger fitur download browser bawaan
-            saveAs(converted, fileName);
-
+            html2pdf().set(opt).from(element).save();
         } catch (error) {
-            alert("Oops! Ada masalah saat mengunduh dokumen. Coba buka dari browser lain ya.");
+            alert("Oops! Ada kendala saat membuat PDF. Silakan coba lagi.");
             console.error(error);
         }
     }
@@ -522,5 +528,6 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
 
