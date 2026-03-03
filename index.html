@@ -490,6 +490,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         }
     }
 
+    // PEMBARUAN FUNGSI DOWNLOAD: Memaksa file disimpan menggunakan tag 'a' langsung tanpa memori buffer FileSaverJS di iOS.
     function downloadSurat() {
         const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Surat Lamaran</title></head><body>";
         const footer = "</body></html>";
@@ -500,33 +501,42 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.docx`;
 
         try {
-            // Konversi HTML ke Blob (File mentah)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            // Generate raw Blob from htmlDocx
             const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
             
-            // Bungkus ulang Blob dengan MIME type resmi untuk Ms Word (.docx)
-            const blob = new Blob([converted], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-            
-            // Buat URL Objek yang bisa dibaca oleh iOS Download Manager
-            const url = window.URL.createObjectURL(blob);
-            
-            // Buat elemen link tersembunyi
-            const link = document.createElement('a');
-            link.style.display = 'none';
-            link.href = url;
-            link.download = fileName;
-            
-            // Pasang ke HTML, klik, lalu bersihkan
-            document.body.appendChild(link);
-            link.click();
-            
-            // Kasih waktu sebentar agar iOS sempat merespon sebelum dibersihkan
-            setTimeout(() => {
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            }, 500);
+            if(isIOS) {
+                // FALLBACK iOS: Gunakan object FileReader langsung ke 'a' element data-href
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    const a = document.createElement("a");
+                    a.href = reader.result;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        document.body.removeChild(a);
+                    }, 200);
+                };
+                reader.readAsDataURL(converted);
+            } else {
+                // Untuk Android dan PC, gunakan Blob biasa
+                const blob = new Blob([converted], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 200);
+            }
 
         } catch (error) {
-            alert("Oops! Ada sedikit masalah saat menyimpan file. Coba gunakan Safari versi terbaru ya.");
+            alert("Oops! Ada kendala penyimpanan di Safari. Silakan gunakan tombol 'Copy Teks Email'.");
             console.error(error);
         }
     }
@@ -539,3 +549,4 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
