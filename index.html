@@ -293,11 +293,50 @@ Kembalikan JSON murni: {"perusahaan": "", "posisi": "", "email": ""}`;
         `;
     }
 
-    function copyToClipboard() {
+    async function copyToClipboard() {
         const emailDiv = document.getElementById("emailOutput");
-        const range = document.createRange(); range.selectNodeContents(emailDiv);
-        const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-        try { document.execCommand('copy'); const btn = document.getElementById("btnCopyEmail"); const old = btn.innerHTML; btn.innerHTML = "✅ Berhasil sayang!"; btn.style.background = "#10b981"; setTimeout(()=> { btn.innerHTML = old; btn.style.background = ""; }, 3000); } catch(e){} sel.removeAllRanges();
+        const btn = document.getElementById("btnCopyEmail");
+        const oldText = btn.innerHTML;
+
+        try {
+            // 1. Ambil HTML murni dan Teks murni (Tanpa CSS website)
+            const cleanHTML = emailDiv.innerHTML;
+            const plainText = emailDiv.innerText;
+
+            // 2. Gunakan Modern Clipboard API (Browser Baru)
+            if (navigator.clipboard && window.ClipboardItem) {
+                const htmlBlob = new Blob([cleanHTML], { type: 'text/html' });
+                const textBlob = new Blob([plainText], { type: 'text/plain' });
+                
+                const clipboardItem = new ClipboardItem({
+                    'text/html': htmlBlob,
+                    'text/plain': textBlob
+                });
+                
+                await navigator.clipboard.write([clipboardItem]);
+            } else {
+                // 3. Fallback untuk browser lama
+                const range = document.createRange(); 
+                range.selectNodeContents(emailDiv);
+                const sel = window.getSelection(); 
+                sel.removeAllRanges(); 
+                sel.addRange(range);
+                document.execCommand('copy'); 
+                sel.removeAllRanges();
+            }
+
+            // Animasi sukses
+            btn.innerHTML = "✅ Berhasil disalin!"; 
+            btn.style.background = "#10b981"; 
+            setTimeout(() => { 
+                btn.innerHTML = oldText; 
+                btn.style.background = ""; 
+            }, 3000); 
+
+        } catch (err) {
+            console.error("Copy Error:", err);
+            alert('Gagal menyalin teks otomatis. Silakan blok teks manual dan copy.');
+        }
     }
     
     function openGmail() {
@@ -381,6 +420,7 @@ Kembalikan JSON murni: {"perusahaan": "", "posisi": "", "email": ""}`;
 
 </body>
 </html>
+
 
 
 
