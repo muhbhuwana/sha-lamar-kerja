@@ -303,8 +303,38 @@ Kembalikan JSON murni: {"perusahaan": "", "posisi": "", "email": ""}`;
     function openGmail() {
         const to = encodeURIComponent(document.getElementById('emailTujuan').value);
         const su = encodeURIComponent(document.getElementById('subject').value);
-        const body = encodeURIComponent(document.getElementById('emailOutput').innerText);
-        window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`, '_blank');
+        
+        // Ambil isi teks email
+        const bodyText = document.getElementById('emailOutput').innerText;
+        const body = encodeURIComponent(bodyText);
+
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+        const isAndroid = /android/i.test(userAgent);
+
+        if (isIOS) {
+            // Coba panggil aplikasi Gmail Native di iOS
+            window.location.href = `googlegmail:///co?to=${to}&subject=${su}&body=${body}`;
+            
+            // Fallback: Jika tidak punya aplikasi Gmail, buka aplikasi Mail bawaan iPhone
+            setTimeout(() => {
+                window.location.href = `mailto:${to}?subject=${su}&body=${body}`;
+            }, 500);
+            
+        } else if (isAndroid) {
+            // Panggil Android Intent khusus untuk memaksakan package Gmail terbuka
+            const androidIntent = `intent://compose?to=${to}&subject=${su}&body=${body}#Intent;package=com.google.android.gm;scheme=mailto;end;`;
+            window.location.href = androidIntent;
+            
+            // Fallback: Buka aplikasi email default Android jika Gmail tidak ada
+            setTimeout(() => {
+                window.location.href = `mailto:${to}?subject=${su}&body=${body}`;
+            }, 500);
+            
+        } else {
+            // Desktop / Laptop: Buka Gmail versi Web di tab baru
+            window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`, '_blank');
+        }
     }
 
     function downloadSurat() {
@@ -351,5 +381,6 @@ Kembalikan JSON murni: {"perusahaan": "", "posisi": "", "email": ""}`;
 
 </body>
 </html>
+
 
 
