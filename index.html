@@ -490,67 +490,80 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
     }
 
     function downloadSurat() {
+        // 1. PENGAMANAN GANDA: Paksa sinkronisasi data terbaru sebelum di-PDF-kan
+        generateAll();
+
         const nama = document.getElementById('nama').value || "Shakira";
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.pdf`;
 
-        // 1. Ambil teks lamaran dari memori
+        // 2. Ambil teks lamaran yang sudah PASTI terisi
         const isiSurat = document.getElementById("suratContent").innerHTML;
 
-        // 2. Buat "kertas fisik" nyata di dalam sistem web
+        // Jika entah bagaimana masih kosong, hentikan proses agar tidak download file 3KB
+        if (!isiSurat || isiSurat.trim() === "") {
+            alert("Sistem mendeteksi surat kosong. Coba ketik ulang salah satu inputan.");
+            return;
+        }
+
+        // 3. Sembunyikan SELURUH tampilan website (Container) sementara
+        const mainContainer = document.querySelector('.container');
+        mainContainer.style.display = 'none';
+
+        // 4. Buat kertas A4 nyata di tengah layar
         const printArea = document.createElement('div');
-        printArea.innerHTML = isiSurat;
-        
-        // 3. Format CSS persis seperti kertas A4 asli
-        printArea.style.width = '210mm';
-        printArea.style.padding = '25mm'; // Margin standar HRD
+        printArea.id = "area-cetak-pdf";
+        printArea.style.width = '210mm'; 
+        printArea.style.minHeight = '297mm'; 
+        printArea.style.padding = '25mm'; 
         printArea.style.backgroundColor = '#ffffff';
         printArea.style.color = '#000000';
         printArea.style.fontFamily = "'Times New Roman', Times, serif";
         printArea.style.fontSize = '12pt';
         printArea.style.lineHeight = '1.5';
         printArea.style.textAlign = 'justify';
-        
-        // TRIK ANTI-BLANK: Taruh kertasnya di pojok, TAPI di belakang background web
-        printArea.style.position = 'absolute';
-        printArea.style.top = '0';
-        printArea.style.left = '0';
-        printArea.style.zIndex = '-100'; 
-        
-        // Masukkan kertas ke dalam halaman
-        document.body.appendChild(printArea);
+        printArea.style.margin = '0 auto'; 
+        printArea.innerHTML = isiSurat;
 
-        // 4. Konfigurasi mesin pembuat PDF
+        // 5. Masukkan ke dalam layar
+        document.body.appendChild(printArea);
+        
+        // Scroll ke paling atas agar fotonya tidak terpotong
+        window.scrollTo(0, 0);
+
+        // 6. Konfigurasi PDF
         const opt = {
-            margin:       0, // Margin diatur 0 karena sudah pakai padding di atas
+            margin:       0, 
             filename:     fileName,
             image:        { type: 'jpeg', quality: 1 },
-            html2canvas:  { 
-                scale: 2, 
-                useCORS: true, 
-                windowWidth: printArea.scrollWidth // PAKSA kamera membaca selebar kertas
-            },
+            html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 5. Ubah tombol jadi status loading sebentar
+        // 7. Ubah tombol jadi status loading (akan terlihat sesaat sebelum layout disembunyikan)
         const btnDownload = document.querySelector('.btn-secondary');
         const originalText = btnDownload.innerHTML;
         btnDownload.innerHTML = "⏳ Sedang mencetak PDF...";
         btnDownload.disabled = true;
 
-        // 6. Eksekusi foto PDF lalu bersihkan kertas rahasianya
-        html2pdf().set(opt).from(printArea).save().then(() => {
-            document.body.removeChild(printArea);
-            btnDownload.innerHTML = originalText;
-            btnDownload.disabled = false;
-        }).catch(err => {
-            console.error(err);
-            alert("Oops! Gagal membuat PDF. Coba ulangi lagi.");
-            document.body.removeChild(printArea);
-            btnDownload.innerHTML = originalText;
-            btnDownload.disabled = false;
-        });
+        // 8. Tunggu sedikit agar browser selesai merender DOM baru, lalu eksekusi!
+        setTimeout(() => {
+            html2pdf().set(opt).from(printArea).save().then(() => {
+                // SETELAH SUKSES: Kembalikan tampilan website seperti semula
+                document.body.removeChild(printArea);
+                mainContainer.style.display = 'block';
+                btnDownload.innerHTML = originalText;
+                btnDownload.disabled = false;
+            }).catch(err => {
+                console.error("PDF Error:", err);
+                alert("Oops! Gagal membuat PDF. Coba ulangi lagi.");
+                // JIKA ERROR: Tetap kembalikan tampilan web
+                document.body.removeChild(printArea);
+                mainContainer.style.display = 'block';
+                btnDownload.innerHTML = originalText;
+                btnDownload.disabled = false;
+            });
+        }, 300); 
     }
 
     window.onload = function() {
@@ -561,6 +574,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
 
 
