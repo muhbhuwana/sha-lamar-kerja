@@ -191,7 +191,7 @@
     <div id="suratContent" style="display: none;"></div>
     
     <div class="footer-note">
-        Ingin tahu cara kerja atau kodingan website ini? Baca <a href="https://github.com/muhbhuwana/sha-lamar-kerja" target="_blank">Dokumentasinya (README) di sini</a>.
+        Ingin tahu cara kerja atau kodingan website ini? Baca <a href="https://github.com/username-anda/nama-repository" target="_blank">Dokumentasinya (README) di sini</a>.
     </div>
 </div>
 
@@ -222,14 +222,14 @@
         if(previewImg.src && previewImg.src !== window.location.href) {
             modal.style.display = "block";
             modalImg.src = previewImg.src;
-            document.body.style.overflow = "hidden"; // Cegah scroll background
+            document.body.style.overflow = "hidden"; 
         }
     }
 
     function closeModal(event) {
         if(event.target.id === "imageModal" || event.target.classList.contains("close-modal")) {
             document.getElementById("imageModal").style.display = "none";
-            document.body.style.overflow = "auto"; // Kembalikan scroll
+            document.body.style.overflow = "auto"; 
         }
     }
 
@@ -489,7 +489,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
             window.open(gmailUrl, '_blank');
         }
     }
-    
+
     function downloadSurat() {
         const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Surat Lamaran</title></head><body>";
         const footer = "</body></html>";
