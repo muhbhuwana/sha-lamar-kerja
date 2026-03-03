@@ -494,29 +494,47 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.pdf`;
 
-        // Mengambil isi surat dan membungkusnya dengan div agar formatnya rapi saat di-PDF-kan
-        const element = document.createElement('div');
-        element.innerHTML = `
-            <div style="padding: 40px; font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #000; line-height: 1.5; text-align: justify;">
-                ${document.getElementById("suratContent").innerHTML}
-            </div>
-        `;
+        // 1. Ambil teks asli dari elemen tersembunyi
+        const isiSurat = document.getElementById("suratContent").innerHTML;
 
-        // Pengaturan kertas PDF (A4, margin rapi)
+        // 2. Bikin 'kertas virtual' di luar layar (Off-screen) agar bisa difoto oleh sistem PDF
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px'; // Lempar jauh ke kiri agar tidak kelihatan di layar
+        tempDiv.style.top = '0';
+        tempDiv.style.width = '800px'; // Paksa lebar seukuran kertas A4
+        tempDiv.style.padding = '40px'; // Margin dalam kertas
+        tempDiv.style.fontFamily = "'Times New Roman', Times, serif"; // Font resmi
+        tempDiv.style.fontSize = '12pt';
+        tempDiv.style.color = '#000000';
+        tempDiv.style.lineHeight = '1.5';
+        tempDiv.style.textAlign = 'justify';
+        tempDiv.style.backgroundColor = '#ffffff'; // Pastikan latar belakangnya putih, bukan transparan
+        tempDiv.innerHTML = isiSurat;
+
+        // 3. Tempelkan sementara ke dalam website
+        document.body.appendChild(tempDiv);
+
+        // Pengaturan PDF
         const opt = {
-            margin:       0.5,
+            margin:       0.5, // Margin PDF (inci)
             filename:     fileName,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
             jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
 
-        // Mulai proses pembuatan PDF dan otomatis download
+        // 4. Mulai proses foto ke PDF, lalu bersihkan kertas virtualnya
         try {
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(tempDiv).save().then(() => {
+                // Hapus elemen setelah sukses download
+                document.body.removeChild(tempDiv);
+            });
         } catch (error) {
             alert("Oops! Ada kendala saat membuat PDF. Silakan coba lagi.");
             console.error(error);
+            // Tetap hapus elemen jika error
+            document.body.removeChild(tempDiv);
         }
     }
 
@@ -528,6 +546,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
 
 
