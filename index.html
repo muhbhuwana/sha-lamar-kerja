@@ -494,32 +494,63 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.pdf`;
 
-        // 1. Ambil isi teks murni dari elemen tersembunyi
-        const isiSurat = document.getElementById("suratContent").innerHTML;
+        // 1. Tampilkan layar loading agar menutupi proses rahasia kita di bawahnya
+        const loadingScreen = document.createElement('div');
+        loadingScreen.style.position = 'fixed';
+        loadingScreen.style.top = '0';
+        loadingScreen.style.left = '0';
+        loadingScreen.style.width = '100vw';
+        loadingScreen.style.height = '100vh';
+        loadingScreen.style.backgroundColor = 'rgba(255,255,255,0.98)';
+        loadingScreen.style.zIndex = '9999';
+        loadingScreen.style.display = 'flex';
+        loadingScreen.style.flexDirection = 'column';
+        loadingScreen.style.alignItems = 'center';
+        loadingScreen.style.justifyContent = 'center';
+        loadingScreen.innerHTML = '<h2 style="color: #2563eb;">⏳ Sedang mencetak PDF...</h2><p style="color: #be185d; font-style: italic;">Tunggu sebentar ya sayang...</p>';
+        document.body.appendChild(loadingScreen);
 
-        // 2. Bungkus langsung ke dalam String HTML (tanpa create element di DOM)
-        const formatKertas = `
-            <div style="padding: 1.5cm; font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #000000; line-height: 1.5; text-align: justify; background-color: white;">
-                ${isiSurat}
-            </div>
-        `;
+        // 2. Buat elemen fisik yang NYATA di dalam layar, tapi ditutupi oleh loading screen
+        const pdfContainer = document.createElement('div');
+        pdfContainer.style.position = 'absolute';
+        pdfContainer.style.top = '0';
+        pdfContainer.style.left = '0';
+        pdfContainer.style.width = '210mm'; // Lebar kertas A4 asli
+        pdfContainer.style.padding = '20mm'; // Margin kertas rapi
+        pdfContainer.style.backgroundColor = '#ffffff'; // Kertas wajib putih
+        pdfContainer.style.color = '#000000'; // Tinta wajib hitam
+        pdfContainer.style.fontFamily = "'Times New Roman', Times, serif"; // Font standar HRD
+        pdfContainer.style.fontSize = '12pt';
+        pdfContainer.style.lineHeight = '1.5';
+        pdfContainer.style.textAlign = 'justify';
+        pdfContainer.style.zIndex = '9998'; // Posisinya persis di BAWAH loading screen
+        
+        // Ambil teks dari hidden div kita
+        pdfContainer.innerHTML = document.getElementById("suratContent").innerHTML;
+        document.body.appendChild(pdfContainer);
 
-        // 3. Konfigurasi ketat PDF
+        // Pengaturan render kamera PDF
         const opt = {
-            margin:       0, // Set margin 0 karena kita pakai padding di dalam div
+            margin:       0, 
             filename:     fileName,
             image:        { type: 'jpeg', quality: 1 },
-            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', letterRendering: true },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 4. Lempar String langsung ke html2pdf (Sistem akan merender di background secara otomatis)
-        try {
-            html2pdf().set(opt).from(formatKertas).save();
-        } catch (error) {
-            alert("Oops! Ada kendala saat membuat PDF. Coba perbarui browser ya.");
-            console.error("PDF Generation Error:", error);
-        }
+        // 3. Beri jeda waktu kedip (200ms) agar font termuat, lalu jepret fotonya!
+        setTimeout(() => {
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                // Selesai download, bersihkan kertas dan layar loading-nya
+                document.body.removeChild(pdfContainer);
+                document.body.removeChild(loadingScreen);
+            }).catch(err => {
+                alert("Oops! Gagal membuat PDF. Coba ulangi lagi.");
+                console.error(err);
+                document.body.removeChild(pdfContainer);
+                document.body.removeChild(loadingScreen);
+            });
+        }, 200);
     }
 
     window.onload = function() {
@@ -530,6 +561,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
 
 
