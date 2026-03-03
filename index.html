@@ -497,7 +497,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.pdf`;
 
-        // 2. Ambil teks lamaran yang sudah PASTI terisi
+        // 2. Ambil teks lamaran
         const isiSurat = document.getElementById("suratContent").innerHTML;
 
         if (!isiSurat || isiSurat.trim() === "") {
@@ -505,32 +505,40 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
             return;
         }
 
-        // 3. Sembunyikan SELURUH tampilan website (Container) sementara
+        // 3. Sembunyikan web sementara
         const mainContainer = document.querySelector('.container');
         mainContainer.style.display = 'none';
 
-        // 4. Buat kertas A4 nyata di tengah layar
+        // 4. Buat kertas A4 nyata
         const printArea = document.createElement('div');
         printArea.id = "area-cetak-pdf";
         printArea.style.width = '210mm'; 
-        // HAPUS minHeight agar tinggi menyesuaikan konten secara natural
-        printArea.style.padding = '25mm'; 
-        printArea.style.boxSizing = 'border-box'; // KUNCI UTAMA: Agar padding tidak menambah ukuran A4
+        printArea.style.boxSizing = 'border-box'; 
+        
+        // PERBAIKAN 1: Perkecil margin/padding kertas (15mm atas/bawah, 20mm kiri/kanan)
+        printArea.style.padding = '15mm 20mm'; 
         printArea.style.backgroundColor = '#ffffff';
         printArea.style.color = '#000000';
         printArea.style.fontFamily = "'Times New Roman', Times, serif";
-        printArea.style.fontSize = '12pt';
-        printArea.style.lineHeight = '1.5';
+        
+        // PERBAIKAN 2: Perkecil Font dan Line-Height agar elegan dan pas 1 lembar
+        printArea.style.fontSize = '11pt';
+        printArea.style.lineHeight = '1.3';
         printArea.style.textAlign = 'justify';
         printArea.style.margin = '0 auto'; 
         
-        // Hapus margin bawah berlebih dari elemen terakhir agar tidak memicu halaman 2
-        printArea.innerHTML = isiSurat + '<div style="clear:both; margin:0; padding:0; height:0;"></div>';
+        // PERBAIKAN 3: Suntikkan CSS khusus untuk membuang spasi ganda antar paragraf
+        printArea.innerHTML = `
+            <style>
+                #area-cetak-pdf p { margin: 0 0 6px 0; }
+                #area-cetak-pdf ol { margin: 4px 0 10px 0; padding-left: 20px; }
+                #area-cetak-pdf li { margin-bottom: 4px; }
+            </style>
+            ${isiSurat}
+        `;
 
-        // 5. Masukkan ke dalam layar
+        // 5. Masukkan ke layar
         document.body.appendChild(printArea);
-        
-        // Scroll ke paling atas agar fotonya tidak terpotong
         window.scrollTo(0, 0);
 
         // 6. Konfigurasi PDF
@@ -542,7 +550,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 7. Ubah tombol jadi status loading 
+        // 7. Loading Button
         const btnDownload = document.querySelector('.btn-secondary');
         const originalText = btnDownload.innerHTML;
         btnDownload.innerHTML = "⏳ Sedang mencetak PDF...";
@@ -551,7 +559,6 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         // 8. Eksekusi
         setTimeout(() => {
             html2pdf().set(opt).from(printArea).save().then(() => {
-                // SETELAH SUKSES: Kembalikan tampilan website seperti semula
                 document.body.removeChild(printArea);
                 mainContainer.style.display = 'block';
                 btnDownload.innerHTML = originalText;
@@ -575,6 +582,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
 
 
