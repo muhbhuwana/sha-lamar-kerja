@@ -494,63 +494,63 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         const perusahaan = document.getElementById('perusahaan').value || "Perusahaan";
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.pdf`;
 
-        // 1. Tampilkan layar loading agar menutupi proses rahasia kita di bawahnya
-        const loadingScreen = document.createElement('div');
-        loadingScreen.style.position = 'fixed';
-        loadingScreen.style.top = '0';
-        loadingScreen.style.left = '0';
-        loadingScreen.style.width = '100vw';
-        loadingScreen.style.height = '100vh';
-        loadingScreen.style.backgroundColor = 'rgba(255,255,255,0.98)';
-        loadingScreen.style.zIndex = '9999';
-        loadingScreen.style.display = 'flex';
-        loadingScreen.style.flexDirection = 'column';
-        loadingScreen.style.alignItems = 'center';
-        loadingScreen.style.justifyContent = 'center';
-        loadingScreen.innerHTML = '<h2 style="color: #2563eb;">⏳ Sedang mencetak PDF...</h2><p style="color: #be185d; font-style: italic;">Tunggu sebentar ya sayang...</p>';
-        document.body.appendChild(loadingScreen);
+        // 1. Ambil teks lamaran dari memori
+        const isiSurat = document.getElementById("suratContent").innerHTML;
 
-        // 2. Buat elemen fisik yang NYATA di dalam layar, tapi ditutupi oleh loading screen
-        const pdfContainer = document.createElement('div');
-        pdfContainer.style.position = 'absolute';
-        pdfContainer.style.top = '0';
-        pdfContainer.style.left = '0';
-        pdfContainer.style.width = '210mm'; // Lebar kertas A4 asli
-        pdfContainer.style.padding = '20mm'; // Margin kertas rapi
-        pdfContainer.style.backgroundColor = '#ffffff'; // Kertas wajib putih
-        pdfContainer.style.color = '#000000'; // Tinta wajib hitam
-        pdfContainer.style.fontFamily = "'Times New Roman', Times, serif"; // Font standar HRD
-        pdfContainer.style.fontSize = '12pt';
-        pdfContainer.style.lineHeight = '1.5';
-        pdfContainer.style.textAlign = 'justify';
-        pdfContainer.style.zIndex = '9998'; // Posisinya persis di BAWAH loading screen
+        // 2. Buat "kertas fisik" nyata di dalam sistem web
+        const printArea = document.createElement('div');
+        printArea.innerHTML = isiSurat;
         
-        // Ambil teks dari hidden div kita
-        pdfContainer.innerHTML = document.getElementById("suratContent").innerHTML;
-        document.body.appendChild(pdfContainer);
+        // 3. Format CSS persis seperti kertas A4 asli
+        printArea.style.width = '210mm';
+        printArea.style.padding = '25mm'; // Margin standar HRD
+        printArea.style.backgroundColor = '#ffffff';
+        printArea.style.color = '#000000';
+        printArea.style.fontFamily = "'Times New Roman', Times, serif";
+        printArea.style.fontSize = '12pt';
+        printArea.style.lineHeight = '1.5';
+        printArea.style.textAlign = 'justify';
+        
+        // TRIK ANTI-BLANK: Taruh kertasnya di pojok, TAPI di belakang background web
+        printArea.style.position = 'absolute';
+        printArea.style.top = '0';
+        printArea.style.left = '0';
+        printArea.style.zIndex = '-100'; 
+        
+        // Masukkan kertas ke dalam halaman
+        document.body.appendChild(printArea);
 
-        // Pengaturan render kamera PDF
+        // 4. Konfigurasi mesin pembuat PDF
         const opt = {
-            margin:       0, 
+            margin:       0, // Margin diatur 0 karena sudah pakai padding di atas
             filename:     fileName,
             image:        { type: 'jpeg', quality: 1 },
-            html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                windowWidth: printArea.scrollWidth // PAKSA kamera membaca selebar kertas
+            },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 3. Beri jeda waktu kedip (200ms) agar font termuat, lalu jepret fotonya!
-        setTimeout(() => {
-            html2pdf().set(opt).from(pdfContainer).save().then(() => {
-                // Selesai download, bersihkan kertas dan layar loading-nya
-                document.body.removeChild(pdfContainer);
-                document.body.removeChild(loadingScreen);
-            }).catch(err => {
-                alert("Oops! Gagal membuat PDF. Coba ulangi lagi.");
-                console.error(err);
-                document.body.removeChild(pdfContainer);
-                document.body.removeChild(loadingScreen);
-            });
-        }, 200);
+        // 5. Ubah tombol jadi status loading sebentar
+        const btnDownload = document.querySelector('.btn-secondary');
+        const originalText = btnDownload.innerHTML;
+        btnDownload.innerHTML = "⏳ Sedang mencetak PDF...";
+        btnDownload.disabled = true;
+
+        // 6. Eksekusi foto PDF lalu bersihkan kertas rahasianya
+        html2pdf().set(opt).from(printArea).save().then(() => {
+            document.body.removeChild(printArea);
+            btnDownload.innerHTML = originalText;
+            btnDownload.disabled = false;
+        }).catch(err => {
+            console.error(err);
+            alert("Oops! Gagal membuat PDF. Coba ulangi lagi.");
+            document.body.removeChild(printArea);
+            btnDownload.innerHTML = originalText;
+            btnDownload.disabled = false;
+        });
     }
 
     window.onload = function() {
@@ -561,6 +561,7 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
 
 
