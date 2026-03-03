@@ -501,42 +501,15 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
         const fileName = `Surat Lamaran - ${nama} - ${perusahaan}.docx`;
 
         try {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            
-            // Generate raw Blob from htmlDocx
+            // Konversi HTML ke Blob (.docx)
             const converted = htmlDocx.asBlob(content, {orientation: 'portrait'});
             
-            if(isIOS) {
-                // FALLBACK iOS: Gunakan object FileReader langsung ke 'a' element data-href
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    const a = document.createElement("a");
-                    a.href = reader.result;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function() {
-                        document.body.removeChild(a);
-                    }, 200);
-                };
-                reader.readAsDataURL(converted);
-            } else {
-                // Untuk Android dan PC, gunakan Blob biasa
-                const blob = new Blob([converted], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }, 200);
-            }
+            // MAGIC TRICK: Memanfaatkan FileSaver.js langsung untuk cross-platform (iOS, Android, Windows)
+            // Ini akan memaksa trigger fitur download browser bawaan
+            saveAs(converted, fileName);
 
         } catch (error) {
-            alert("Oops! Ada kendala penyimpanan di Safari. Silakan gunakan tombol 'Copy Teks Email'.");
+            alert("Oops! Ada masalah saat mengunduh dokumen. Coba buka dari browser lain ya.");
             console.error(error);
         }
     }
@@ -549,4 +522,5 @@ Kembalikan HANYA dalam bentuk objek JSON murni persis dengan format kunci ini: {
 
 </body>
 </html>
+
 
